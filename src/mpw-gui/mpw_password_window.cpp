@@ -9,6 +9,7 @@
 #include "simple_columns.h"
 #include "mpw_login_window.h"
 #include <iostream>
+#include <gtkmm/messagedialog.h>
 
 static simple_row_data passwordTypes[] = {
         {0x0, "Maximum", MPSiteTypeGeneratedMaximum},
@@ -143,10 +144,19 @@ void mpw_password_window::compute_and_show_password() {
     uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
 
     // Set the output password
-    passwordOutput->set_text(
-            service.size() > 0 ?
-            user->passwordForService(service, type, version, counter) : ""
-    );
+    if (service.size() == 0) {
+        passwordOutput->set_text("");
+    } else {
+        try {
+            passwordOutput->set_text(user->passwordForService(service, type, version, counter));
+        } catch (password_generate_exception &e) {
+            passwordOutput->set_text("");
+
+            Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
+            dialog.set_secondary_text("Could not generate password: " + std::string{e.what()});
+            dialog.run();
+        }
+    }
 }
 
 void mpw_password_window::update_password_visibility() {

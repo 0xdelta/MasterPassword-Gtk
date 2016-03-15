@@ -166,7 +166,12 @@ void mpw_user::writeToConfig() {
 
 std::string mpw_user::passwordForService(std::string siteName, MPSiteType siteType,
                                          MPAlgorithmVersion version, uint32_t counter) {
-    return mpw_passwordForSite(masterKey, siteName.c_str(), siteType, counter, MPSiteVariantPassword, NULL, version);
+    const char *res = mpw_passwordForSite(masterKey, siteName.c_str(), siteType, counter, MPSiteVariantPassword, NULL, version);
+    if (res == NULL) {
+        std::cerr << "mpw_passwordForSite returned NULL" << std::endl;
+        throw password_generate_exception{};
+    }
+    return std::string{res};
 }
 
 std::string mpw_user::passwordForService(mpw_service &service) {

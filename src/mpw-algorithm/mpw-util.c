@@ -77,13 +77,16 @@ uint8_t const *mpw_scrypt(const size_t keySize, const char *secret, const uint8_
 uint8_t const *mpw_hmac_sha256(const uint8_t *key, const size_t keySize, const uint8_t *salt, const size_t saltSize) {
 
     uint8_t *const buffer = malloc(MP_macLen);
-    if (!buffer)
+    if (!buffer) {
         return NULL;
+    }
 
-    HMAC(EVP_sha256(),
+    if(HMAC(EVP_sha256(),
          key, (int) keySize,
          salt, saltSize,
-         buffer, NULL);
+         buffer, NULL) == NULL) {
+        return NULL;
+    }
 
     return buffer;
 }
