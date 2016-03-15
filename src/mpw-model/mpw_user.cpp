@@ -165,7 +165,7 @@ void mpw_user::writeToConfig() {
 }
 
 std::string mpw_user::passwordForService(std::string siteName, MPSiteType siteType,
-                                         MPAlgorithmVersion version, uint32_t counter) {
+                                         MPAlgorithmVersion version, uint32_t counter) throw(password_generate_exception) {
     const char *res = mpw_passwordForSite(masterKey, siteName.c_str(), siteType, counter, MPSiteVariantPassword, NULL, version);
     if (res == NULL) {
         std::cerr << "mpw_passwordForSite returned NULL" << std::endl;
@@ -174,6 +174,6 @@ std::string mpw_user::passwordForService(std::string siteName, MPSiteType siteTy
     return std::string{res};
 }
 
-std::string mpw_user::passwordForService(mpw_service &service) {
+std::string mpw_user::passwordForService(mpw_service &service) throw(password_generate_exception){
     return passwordForService(service.getName(), service.getType(), (uint32_t) service.getCounter(), service.getAlgorithmVersion());
 }
