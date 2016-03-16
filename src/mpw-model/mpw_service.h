@@ -20,8 +20,11 @@ private:
     int counter;
 
 public:
+    //mpw_service(mpw_service &service);
     mpw_service(std::string name);
     mpw_service(std::string name, MPSiteType siteType, MPAlgorithmVersion algorithmVersion, int counter);
+
+    bool operator==(const mpw_service &other);
 
     const std::string &getName() const {
         return name;
