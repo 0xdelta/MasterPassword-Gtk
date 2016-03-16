@@ -10,7 +10,11 @@ account_user::account_user(std::string userName, const uint8_t *masterKeyId, MPA
         user(userName, masterKeyId, algorithmVersion) {
 }
 
-bool user::unlockMasterKey(std::string &masterPassword) {
+bool account_user::isIncognito() {
+    return false;
+}
+
+bool account_user::unlockMasterKey(std::string &masterPassword) {
     // Check if the master key id exists. If not, it is not possible
     // to unlock the master key.
     if (!masterKeyId) {
@@ -31,10 +35,6 @@ bool user::unlockMasterKey(std::string &masterPassword) {
     }
 
     // Error: Key ids not equal
-    return false;
-}
-
-bool user::isIncognito() {
     return false;
 }
 

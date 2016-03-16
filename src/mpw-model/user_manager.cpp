@@ -23,7 +23,13 @@ std::string user_manager::getConfigFileName() {
 }
 
 std::string user_manager::getUserConfigFileName(std::string &userName) {
-    return getConfigDir() + userName + ".user";
+    if (availableUsers.find(userName) == availableUsers.end()) {
+        // Element does not exist
+        return getConfigDir() + "/" + userName + ".user";
+    } else {
+        // User has a file
+        return availableUsers.at(userName);
+    }
 }
 
 void user_manager::readFromConfig() {
@@ -109,6 +115,10 @@ void user_manager::writeToConfig() {
     std::cout << "Success writing main config." << std::endl;
 }
 
+bool user_manager::existsUser(std::string &userName) {
+    return availableUsers.find(userName) != availableUsers.end();
+}
+
 account_user *user_manager::readUserFromConfig(std::string &userName) {
     using namespace libconfig;
     FILE *configFile = fopen(getUserConfigFileName(userName).c_str(), "r");
@@ -166,7 +176,7 @@ account_user *user_manager::readUserFromConfig(std::string &userName) {
             std::cout << "Success reading user config." << std::endl;
             return user;
         } else {
-            std::cerr << "Unknown use rconfig version: " << configVersion << std::endl;
+            std::cerr << "Unknown user config version: " << configVersion << std::endl;
         }
     } catch (SettingNotFoundException &e) {
         std::cerr << "Could not read user config: " << e.what() << " (" << e.getPath() << ")" << std::endl;
@@ -175,7 +185,7 @@ account_user *user_manager::readUserFromConfig(std::string &userName) {
     return NULL;
 }
 
-void user_manager::writeUserToConfig(account_user &user) {
+void user_manager::writeUserToConfig(user &user) {
     using namespace libconfig;
 
     // Create a config object and insert the values
@@ -194,9 +204,10 @@ void user_manager::writeUserToConfig(account_user &user) {
     }
 
     // Create a stream to write the config
-    FILE *configFile = fopen(getUserConfigFileName((std::string &) user.getUserName()).c_str(), "w");
+    std::string configFileName = getUserConfigFileName((std::string &) user.getUserName());
+    FILE *configFile = fopen(configFileName.c_str(), "w");
     if (!configFile) {
-        std::cerr << "Could not create config file" << std::endl;
+        std::cerr << "Could not create user config file" << std::endl;
         return;
     }
 
@@ -204,5 +215,6 @@ void user_manager::writeUserToConfig(account_user &user) {
     config.write(configFile);
     fclose(configFile);
 
-    std::cout << "Success writing config." << std::endl;
+    availableUsers.emplace(user.getUserName(), configFileName);
+    std::cout << "Success writing user config." << std::endl;
 }

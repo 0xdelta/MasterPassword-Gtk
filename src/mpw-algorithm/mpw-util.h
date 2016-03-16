@@ -9,6 +9,10 @@
 #ifndef MPW_UTIL_H
 #define MPW_UTIL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MP_idLen 32
 #define MP_macLen 32
 
@@ -66,5 +70,9 @@ const char *mpw_identicon(const char *fullName, const char *masterPassword);
 
 /** @return The amount of display characters in the given UTF-8 string. */
 const size_t mpw_charlen(const char *utf8String);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MPW_UTIL_H

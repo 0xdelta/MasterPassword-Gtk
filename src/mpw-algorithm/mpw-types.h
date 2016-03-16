@@ -8,6 +8,11 @@
 
 #ifndef _MPW_TYPES_H
 #define _MPW_TYPES_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -95,5 +100,9 @@ const char *mpw_charactersInClass(char characterClass);
  * @return A character from given character class that encodes the given byte.
  */
 const char mpw_characterFromClass(char characterClass, uint8_t seedByte);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _MPW_TYPES_H

@@ -9,10 +9,15 @@
 #ifndef MPW_ALGORITHM_H
 #define MPW_ALGORITHM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // NOTE: mpw is currently NOT thread-safe.
 #include "mpw-types.h"
 
-typedef enum(unsigned int, MPAlgorithmVersion) {
+typedef enum(unsigned
+                     int, MPAlgorithmVersion) {
     /** V0 did math with chars whose signedness was platform-dependent. */
             MPAlgorithmVersion0,
     /** V1 miscounted the byte-length of multi-byte site names. */
@@ -34,5 +39,9 @@ const uint8_t *mpw_masterKeyForUser(
 const char *mpw_passwordForSite(
         const uint8_t *masterKey, const char *siteName, const MPSiteType siteType, const uint32_t siteCounter,
         const MPSiteVariant siteVariant, const char *siteContext, const MPAlgorithmVersion algorithmVersion);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MPW_ALGORITHM_H

@@ -20,17 +20,18 @@ protected:
 protected:
     user(std::string userName);
     user(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion);
-    ~user();
+
+public:
+    virtual ~user();
 
 public:
     std::string passwordForService(std::string &siteName, MPSiteType siteType, MPAlgorithmVersion version, uint32_t counter);
 
-    virtual bool isIncognito();
-    virtual bool unlockMasterKey(std::string &masterPassword);
-    virtual const std::list<mpw_service> &getServices() const;
-    virtual void addService(mpw_service &service);
-    virtual void removeService(mpw_service &service);
-
+    virtual bool isIncognito() = 0;
+    virtual bool unlockMasterKey(std::string &masterPassword) = 0;
+    virtual const std::list<mpw_service> &getServices() const = 0;
+    virtual void addService(mpw_service &service) = 0;
+    virtual void removeService(mpw_service &service) = 0;
 
     const std::string &getUserName() const {
         return userName;

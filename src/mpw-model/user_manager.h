@@ -23,8 +23,9 @@ public:
     void readFromConfig();
     void writeToConfig();
 
+    bool existsUser(std::string &userName);
     account_user* readUserFromConfig(std::string &userName);
-    void writeUserToConfig(account_user &user);
+    void writeUserToConfig(user &user);
 
 };
 

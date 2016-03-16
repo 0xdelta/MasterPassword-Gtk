@@ -6,9 +6,11 @@
 
 #include <gtkmm/builder.h>
 #include <gtkmm/messagedialog.h>
-#include <mpw_user.h>
+#include <account_user.h>
+#include <incognito_user.h>
 
-mpw_create_account_window::mpw_create_account_window() {
+mpw_create_account_window::mpw_create_account_window(user_manager *_userManager) :
+        userManager(_userManager) {
     auto builder = Gtk::Builder::create_from_file("ui/create-account.ui");
 
     // Widgets
@@ -67,18 +69,19 @@ void mpw_create_account_window::create() {
         return;
     }
 
-    mpw_user user{userName};
-
-    if (user.hasConfigFile()) {
+    if (userManager->existsUser(userName)) {
         Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
         dialog.set_secondary_text("An account with the name \"" + userName + "\" already exists.");
         dialog.run();
         return;
     }
 
-    user.loadDefaults();
+    // Create an incognito user, which doesn't needs
+    // a key id to instantiated
+    incognito_user user{userName};
     user.unlockMasterKey(password);
-    user.writeToConfig();
+    userManager->writeUserToConfig(user);
+    userManager->writeToConfig();
 
     Gtk::MessageDialog dialog(*window, "Success", false, Gtk::MESSAGE_INFO);
     dialog.set_secondary_text("Account created! You can now login using your username and password.");

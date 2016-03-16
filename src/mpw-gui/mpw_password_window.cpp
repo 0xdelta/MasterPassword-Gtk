@@ -31,8 +31,8 @@ static simple_row_data mpwVersions[] = {
 };
 static simple_row_data defaultMpwVersion = mpwVersions[2]; // V3
 
-mpw_password_window::mpw_password_window(mpw_user *_user) :
-        user(_user) {
+mpw_password_window::mpw_password_window(user_manager *_userManager, user *_usr) :
+        usr(_usr), userManager(_userManager) {
     auto builder = Gtk::Builder::create_from_file("ui/password.ui");
 
     Gtk::Button *logoutButton, *copyButton;
@@ -101,19 +101,19 @@ mpw_password_window::mpw_password_window(mpw_user *_user) :
     completion->set_model(autoCompleteModel);
     completion->set_text_column(simple_columns_instance.col_name);
 
-    for (auto &site : user->getServices()) {
+    for (auto &site : usr->getServices()) {
         row = *(autoCompleteModel->append());
         simple_columns_instance.apply(row, {0, site.getName(), 0});
     }
 }
 
 mpw_password_window::~mpw_password_window() {
-    delete user;
+    delete usr;
 }
 
 void mpw_password_window::logout() {
     // Create the login window
-    mpw_login_window *loginWindow = new mpw_login_window{};
+    mpw_login_window *loginWindow = new mpw_login_window{userManager};
 
     // Add the password window to the gtk application
     window->get_application()->add_window(*loginWindow->getWindow());
@@ -139,7 +139,7 @@ void mpw_password_window::compute_and_show_password() {
     }
 
     // Collect the needed data
-    Glib::ustring service = serviceEntry->get_text();
+    std::string service = serviceEntry->get_text();
     MPSiteType type = (MPSiteType) siteTypeRow[simple_columns_instance.col_data];
     MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simple_columns_instance.col_data];
     uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
@@ -148,15 +148,15 @@ void mpw_password_window::compute_and_show_password() {
     if (service.size() == 0) {
         passwordOutput->set_text("");
     } else {
-        try {
-            passwordOutput->set_text(user->passwordForService(service, type, version, counter));
-        } catch (password_generate_exception &e) {
+        //try {
+            passwordOutput->set_text(usr->passwordForService(service, type, version, counter));
+        /*} catch (password_generate_exception &e) {
             passwordOutput->set_text("");
 
             Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
             dialog.set_secondary_text("Could not generate password: " + std::string{e.what()});
             dialog.run();
-        }
+        }*/ //TODO
     }
 }
 

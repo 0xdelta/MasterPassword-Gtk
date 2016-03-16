@@ -17,9 +17,11 @@ public:
     account_user(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion);
 
     // Methods from user class
-    const std::list<mpw_service> &getServices() const;
-    void addService(mpw_service &service);
-    void removeService(mpw_service &service);
+    virtual bool isIncognito();
+    virtual bool unlockMasterKey(std::string &masterPassword);
+    virtual const std::list<mpw_service> &getServices() const;
+    virtual void addService(mpw_service &service);
+    virtual void removeService(mpw_service &service);
 };
 
 

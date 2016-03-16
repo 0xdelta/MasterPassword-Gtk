@@ -7,10 +7,7 @@
 
 #include <string>
 #include <bits/stl_function.h>
-
-extern "C" {
 #include <mpw-algorithm.h>
-};
 
 class mpw_service {
 private:

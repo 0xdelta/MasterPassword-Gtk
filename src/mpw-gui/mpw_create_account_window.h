@@ -8,15 +8,17 @@
 #include <gtkmm/entry.h>
 #include <gtkmm/progressbar.h>
 #include <gtkmm/button.h>
+#include <user_manager.h>
 #include "mpw_window.h"
 
 class mpw_create_account_window : public mpw_window {
 private:
+    user_manager *userManager;
     Gtk::ProgressBar *passwordStrength;
     Gtk::Entry *userEntry, *passwordEntry, *repeatPasswordEntry;
     Gtk::Button *cancelButton,*createButton;
 public:
-    mpw_create_account_window();
+    mpw_create_account_window(user_manager *userManager);
 
     void update_password_strength();
     void update_create_button();
