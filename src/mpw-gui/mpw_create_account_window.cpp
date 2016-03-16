@@ -2,11 +2,11 @@
 // Created by lukas on 13.03.16.
 //
 
-#include <algorithm>
+#include "mpw_create_account_window.h"
+
 #include <gtkmm/builder.h>
 #include <gtkmm/messagedialog.h>
 #include <mpw_user.h>
-#include "mpw_create_account_window.h"
 
 mpw_create_account_window::mpw_create_account_window() {
     auto builder = Gtk::Builder::create_from_file("ui/create-account.ui");
@@ -70,7 +70,6 @@ void mpw_create_account_window::create() {
     mpw_user user{userName};
 
     if (user.hasConfigFile()) {
-
         Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
         dialog.set_secondary_text("An account with the name \"" + userName + "\" already exists.");
         dialog.run();

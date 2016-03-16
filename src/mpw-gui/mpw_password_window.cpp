@@ -2,14 +2,15 @@
 // Created by lukas on 09.03.16.
 //
 
+#include "mpw_login_window.h"
+
 #include <gtkmm/builder.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/listviewtext.h>
-#include "mpw_password_window.h"
-#include "simple_columns.h"
-#include "mpw_login_window.h"
 #include <iostream>
 #include <gtkmm/messagedialog.h>
+#include "mpw_password_window.h"
+#include "simple_columns.h"
 
 static simple_row_data passwordTypes[] = {
         {0x0, "Maximum", MPSiteTypeGeneratedMaximum},

@@ -2,6 +2,8 @@
 // Created by lukas on 09.03.16.
 //
 
+#include "mpw_create_account_window.h"
+
 #include <gtkmm/builder.h>
 #include <gtkmm/button.h>
 #include <gtkmm/main.h>
@@ -9,7 +11,6 @@
 #include <iostream>
 #include "mpw_login_window.h"
 #include "mpw_password_window.h"
-#include "mpw_create_account_window.h"
 
 mpw_login_window::mpw_login_window() {
     auto builder = Gtk::Builder::create_from_file("ui/login.ui");

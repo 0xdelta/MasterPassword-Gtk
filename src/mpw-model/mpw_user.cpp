@@ -2,10 +2,11 @@
 // Created by lukas on 06.03.16.
 //
 
+#include "mpw_user.h"
+
 #include <cstring>
 #include <iostream>
 #include <libconfig.h++>
-#include "mpw_user.h"
 
 extern "C" {
 #include "mpw-util.h"
