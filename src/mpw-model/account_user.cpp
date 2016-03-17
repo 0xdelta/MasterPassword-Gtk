@@ -6,15 +6,15 @@
 #include <string.h>
 #include "account_user.h"
 
-account_user::account_user(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion) :
-        user(userName, masterKeyId, algorithmVersion) {
+AccountUser::AccountUser(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion) :
+        User(userName, masterKeyId, algorithmVersion) {
 }
 
-bool account_user::isIncognito() {
+bool AccountUser::isIncognito() {
     return false;
 }
 
-bool account_user::unlockMasterKey(std::string &masterPassword) {
+bool AccountUser::unlockMasterKey(std::string &masterPassword) {
     // Check if the master key id exists. If not, it is not possible
     // to unlock the master key.
     if (!masterKeyId) {
@@ -38,14 +38,14 @@ bool account_user::unlockMasterKey(std::string &masterPassword) {
     return false;
 }
 
-const std::list<mpw_service> &account_user::getServices() const {
+const std::list<Service> &AccountUser::getServices() const {
     return services;
 }
 
-void account_user::addService(mpw_service &service) {
-    services.push_back(mpw_service{service});
+void AccountUser::addService(Service &service) {
+    services.push_back(Service{service});
 }
 
-void account_user::removeService(mpw_service &service) {
+void AccountUser::removeService(Service &service) {
     services.remove(service);
 }

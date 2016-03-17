@@ -4,7 +4,7 @@
 #include "mpw_password_window.h"
 
 int main(int argc, char *argv[]) {
-    user_manager *userManager = new user_manager;
+    UserManager *userManager = new UserManager;
     userManager->readFromConfig();
 
     // Init gtk

@@ -14,21 +14,23 @@
 
 class mpw_login_window : public mpw_window {
 private:
-    user_manager *userManager;
+    UserManager *userManager;
     Gtk::Entry *incognitoPasswordEntry, *incognitoUserEntry,
             *accountPasswordEntry;
     Gtk::ComboBox *accountUserSelect;
     Gtk::Button *createAccountButton, *incognitoLoginButton, *accountLoginButton;
 public:
-    mpw_login_window(user_manager *userManager);
+    mpw_login_window(UserManager *userManager);
 
 private:
-    void update_available_users();
-    void create_account();
-    void incognito_login();
-    void update_incognito_login_button();
-    void account_login();
-    void update_account_login_button();
+    void updateAvailableUsers();
+    void createAccount();
+
+    void accountLogin();
+    void updateAccountLoginButton();
+
+    void incognitoLogin();
+    void updateIncognitoLoginButton();
 };
 
 

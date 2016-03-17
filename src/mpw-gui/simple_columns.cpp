@@ -4,13 +4,13 @@
 
 #include "simple_columns.h"
 
-simple_columns::simple_columns() {
+SimpleColumns::SimpleColumns() {
     add(col_id);
     add(col_name);
     add(col_data);
 }
 
-void simple_columns::apply(Gtk::TreeModel::Row row, simple_row_data data){
+void SimpleColumns::apply(Gtk::TreeModel::Row row, SimpleRowData data){
     row.set_value(col_id, data.id);
     row.set_value(col_name, data.name);
     row.set_value(col_data, data.data);

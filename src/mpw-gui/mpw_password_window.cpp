@@ -12,7 +12,7 @@
 #include "mpw_password_window.h"
 #include "simple_columns.h"
 
-static simple_row_data passwordTypes[] = {
+static SimpleRowData passwordTypes[] = {
         {0x0, "Maximum", MPSiteTypeGeneratedMaximum},
         {0x1, "Long",    MPSiteTypeGeneratedLong},
         {0x2, "Medium",  MPSiteTypeGeneratedMedium},
@@ -22,17 +22,17 @@ static simple_row_data passwordTypes[] = {
         {0xE, "Name",    MPSiteTypeGeneratedName},
         {0xF, "Phrase",  MPSiteTypeGeneratedPhrase}
 };
-static simple_row_data defaultPasswordType = passwordTypes[1]; // Generated long
+static SimpleRowData defaultPasswordType = passwordTypes[1]; // Generated long
 
-static simple_row_data mpwVersions[] = {
+static SimpleRowData mpwVersions[] = {
         {1, "V1", MPAlgorithmVersion1},
         {2, "V2", MPAlgorithmVersion2},
         {3, "V3", MPAlgorithmVersion3},
 };
-static simple_row_data defaultMpwVersion = mpwVersions[2]; // V3
+static SimpleRowData defaultMpwVersion = mpwVersions[2]; // V3
 
-mpw_password_window::mpw_password_window(user_manager *_userManager, user *_usr) :
-        usr(_usr), userManager(_userManager) {
+mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) :
+        user(_usr), userManager(_userManager) {
     auto builder = Gtk::Builder::create_from_file("ui/password.ui");
 
     Gtk::Button *logoutButton, *copyButton;
@@ -49,26 +49,26 @@ mpw_password_window::mpw_password_window(user_manager *_userManager, user *_usr)
     builder->get_widget("copy-password", copyButton);
 
     // Signals
-    serviceEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::compute_and_show_password));
-    serviceEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_password_window::copy_password));
-    passwordVisibility->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::update_password_visibility));
-    passwordTypeSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::compute_and_show_password));
-    mpwVersionSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::compute_and_show_password));
-    counterSpinButton->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::compute_and_show_password));
+    serviceEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
+    serviceEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_password_window::copyPassword));
+    passwordVisibility->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::updatePasswordVisibility));
+    passwordTypeSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
+    mpwVersionSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
+    counterSpinButton->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
     logoutButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::logout));
-    copyButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::copy_password));
+    copyButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::copyPassword));
 
     // Create the models for ComboBoxes
-    Glib::RefPtr<Gtk::ListStore> passwordTypesModel = Gtk::ListStore::create(simple_columns_instance);
-    Glib::RefPtr<Gtk::ListStore> mpwVersionsModel = Gtk::ListStore::create(simple_columns_instance);
+    Glib::RefPtr<Gtk::ListStore> passwordTypesModel = Gtk::ListStore::create(simpleColumnsInstance);
+    Glib::RefPtr<Gtk::ListStore> mpwVersionsModel = Gtk::ListStore::create(simpleColumnsInstance);
 
     // Use the models for our ComboBoxes
     passwordTypeSelect->set_model(passwordTypesModel);
     mpwVersionSelect->set_model(mpwVersionsModel);
 
     // Configure which elements are shown within the ComboBoxes
-    passwordTypeSelect->pack_start(simple_columns_instance.col_name);
-    mpwVersionSelect->pack_start(simple_columns_instance.col_name);
+    passwordTypeSelect->pack_start(simpleColumnsInstance.col_name);
+    mpwVersionSelect->pack_start(simpleColumnsInstance.col_name);
 
     // Temporary variable
     Gtk::TreeModel::Row row;
@@ -76,7 +76,7 @@ mpw_password_window::mpw_password_window(user_manager *_userManager, user *_usr)
     // Fill the password types model
     for (auto type : passwordTypes) {
         row = *(passwordTypesModel->append());
-        simple_columns_instance.apply(row, type);
+        simpleColumnsInstance.apply(row, type);
 
         if (type.id == defaultPasswordType.id) {
             passwordTypeSelect->set_active(row);
@@ -86,7 +86,7 @@ mpw_password_window::mpw_password_window(user_manager *_userManager, user *_usr)
     //Fill the ComboBox's Tree Model:
     for (auto type : mpwVersions) {
         row = *(mpwVersionsModel->append());
-        simple_columns_instance.apply(row, type);
+        simpleColumnsInstance.apply(row, type);
 
         if (type.id == defaultMpwVersion.id) {
             mpwVersionSelect->set_active(row);
@@ -95,20 +95,20 @@ mpw_password_window::mpw_password_window(user_manager *_userManager, user *_usr)
 
     // Completion for the service entry
     auto completion = Gtk::EntryCompletion::create();
-    auto autoCompleteModel = Gtk::ListStore::create(simple_columns_instance);
+    auto autoCompleteModel = Gtk::ListStore::create(simpleColumnsInstance);
 
     serviceEntry->set_completion(completion);
     completion->set_model(autoCompleteModel);
-    completion->set_text_column(simple_columns_instance.col_name);
+    completion->set_text_column(simpleColumnsInstance.col_name);
 
-    for (auto &site : usr->getServices()) {
+    for (auto &site : user->getServices()) {
         row = *(autoCompleteModel->append());
-        simple_columns_instance.apply(row, {0, site.getName(), 0});
+        simpleColumnsInstance.apply(row, {0, site.getName(), 0});
     }
 }
 
 mpw_password_window::~mpw_password_window() {
-    delete usr;
+    delete user;
 }
 
 void mpw_password_window::logout() {
@@ -123,7 +123,7 @@ void mpw_password_window::logout() {
     delete this;
 }
 
-void mpw_password_window::compute_and_show_password() {
+void mpw_password_window::computeAndShowPassword() {
     Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
     Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
     if (!siteTypeItr || !mpwVersionItr) {
@@ -140,8 +140,8 @@ void mpw_password_window::compute_and_show_password() {
 
     // Collect the needed data
     std::string service = serviceEntry->get_text();
-    MPSiteType type = (MPSiteType) siteTypeRow[simple_columns_instance.col_data];
-    MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simple_columns_instance.col_data];
+    MPSiteType type = (MPSiteType) siteTypeRow[simpleColumnsInstance.col_data];
+    MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simpleColumnsInstance.col_data];
     uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
 
     // Set the output password
@@ -149,7 +149,7 @@ void mpw_password_window::compute_and_show_password() {
         passwordOutput->set_text("");
     } else {
         //try {
-            passwordOutput->set_text(usr->passwordForService(service, type, version, counter));
+            passwordOutput->set_text(user->passwordForService(service, type, version, counter));
         /*} catch (password_generate_exception &e) {
             passwordOutput->set_text("");
 
@@ -160,11 +160,11 @@ void mpw_password_window::compute_and_show_password() {
     }
 }
 
-void mpw_password_window::update_password_visibility() {
+void mpw_password_window::updatePasswordVisibility() {
     passwordOutput->set_visibility(!passwordVisibility->get_active());
 }
 
-void mpw_password_window::copy_password() {
+void mpw_password_window::copyPassword() {
     // We have to make the output visible, to be able to copy it
     passwordOutput->set_visibility(true);
 
@@ -173,5 +173,5 @@ void mpw_password_window::copy_password() {
     passwordOutput->copy_clipboard();
 
     // Revert the visibility to the old state
-    update_password_visibility();
+    updatePasswordVisibility();
 }

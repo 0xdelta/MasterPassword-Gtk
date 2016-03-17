@@ -9,14 +9,14 @@
 #include <string>
 #include "account_user.h"
 
-class user_manager {
+class UserManager {
 private:
     // Maps the user name to the config file location
     std::unordered_map<std::string, std::string> availableUsers;
     std::string lastUser;
 
 public:
-    user_manager();
+    UserManager();
 
     std::string getConfigDir();
     std::string getConfigFileName();
@@ -26,8 +26,8 @@ public:
     void writeToConfig();
 
     bool existsUser(std::string &userName);
-    account_user *readUserFromConfig(std::string &userName);
-    void writeUserToConfig(user &user);
+    AccountUser *readUserFromConfig(std::string &userName);
+    void writeUserToConfig(User &user);
     bool createUser(std::string &userName, std::string &masterPassword);
 
     const std::unordered_map<std::string, std::string> &getAvailableUsers() const {
@@ -39,7 +39,7 @@ public:
     }
 
     void setLastUser(const std::string &lastUser) {
-        user_manager::lastUser = lastUser;
+        UserManager::lastUser = lastUser;
     }
 };
 

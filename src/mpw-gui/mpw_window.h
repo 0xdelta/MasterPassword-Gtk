@@ -13,7 +13,7 @@ protected:
     Gtk::Window *window;
 
 public:
-    ~mpw_window();
+    virtual ~mpw_window();
 
     Gtk::Window *getWindow();
 };

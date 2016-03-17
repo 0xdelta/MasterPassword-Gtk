@@ -7,15 +7,15 @@
 
 #include "user.h"
 
-class incognito_user : public user {
+class IncognitoUser : public User {
 public:
-    incognito_user(std::string userName);
+    IncognitoUser(std::string userName);
 
     virtual bool isIncognito();
     virtual bool unlockMasterKey(std::string &masterPassword);
-    virtual const std::list<mpw_service> &getServices() const;
-    virtual void addService(mpw_service &service);
-    virtual void removeService(mpw_service &service);
+    virtual const std::list<Service> &getServices() const;
+    virtual void addService(Service &service);
+    virtual void removeService(Service &service);
 };
 
 

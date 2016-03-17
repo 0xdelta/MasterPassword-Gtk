@@ -9,19 +9,19 @@
 
 #include <string>
 
-class account_user : public user {
+class AccountUser : public User {
 private:
-    std::list<mpw_service> services;
+    std::list<Service> services;
 
 public:
-    account_user(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion);
+    AccountUser(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion);
 
     // Methods from user class
     virtual bool isIncognito();
     virtual bool unlockMasterKey(std::string &masterPassword);
-    virtual const std::list<mpw_service> &getServices() const;
-    virtual void addService(mpw_service &service);
-    virtual void removeService(mpw_service &service);
+    virtual const std::list<Service> &getServices() const;
+    virtual void addService(Service &service);
+    virtual void removeService(Service &service);
 };
 
 

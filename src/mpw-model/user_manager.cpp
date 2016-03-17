@@ -10,20 +10,20 @@
 #include <iostream>
 #include <mpw-util.h>
 
-user_manager::user_manager() {
+UserManager::UserManager() {
     // Ensure the config directory exists
     mkdir(getConfigDir().c_str(), S_IRWXU | S_IRGRP | S_IXGRP); // Folder with permission 750 (rwx r-x ---)
 }
 
-std::string user_manager::getConfigDir() {
+std::string UserManager::getConfigDir() {
     return std::string{getenv("HOME")} + "/.mpw";
 }
 
-std::string user_manager::getConfigFileName() {
+std::string UserManager::getConfigFileName() {
     return getConfigDir() + "/users.cfg";
 }
 
-std::string user_manager::getUserConfigFileName(std::string &userName) {
+std::string UserManager::getUserConfigFileName(std::string &userName) {
     if (availableUsers.find(userName) == availableUsers.end()) {
         // Element does not exist
         return getConfigDir() + "/" + userName + ".user";
@@ -33,7 +33,7 @@ std::string user_manager::getUserConfigFileName(std::string &userName) {
     }
 }
 
-void user_manager::readFromConfig() {
+void UserManager::readFromConfig() {
     using namespace libconfig;
     FILE *configFile = fopen(getConfigFileName().c_str(), "r");
 
@@ -89,7 +89,7 @@ void user_manager::readFromConfig() {
     }
 }
 
-void user_manager::writeToConfig() {
+void UserManager::writeToConfig() {
     using namespace libconfig;
 
     // Create a config object and insert the values
@@ -118,11 +118,11 @@ void user_manager::writeToConfig() {
     std::cout << "Success writing main config." << std::endl;
 }
 
-bool user_manager::existsUser(std::string &userName) {
+bool UserManager::existsUser(std::string &userName) {
     return availableUsers.find(userName) != availableUsers.end();
 }
 
-account_user *user_manager::readUserFromConfig(std::string &userName) {
+AccountUser *UserManager::readUserFromConfig(std::string &userName) {
     using namespace libconfig;
     FILE *configFile = fopen(getUserConfigFileName(userName).c_str(), "r");
 
@@ -156,7 +156,7 @@ account_user *user_manager::readUserFromConfig(std::string &userName) {
             const uint8_t *masterKeyId = mpw_hex_reverse(keyIdString.c_str(), keyIdString.size());
             MPAlgorithmVersion masterKeyAlgorithmVersion = (MPAlgorithmVersion) ((int) config.lookup("algorithmVersion"));
 
-            account_user *user = new account_user{userName, masterKeyId, masterKeyAlgorithmVersion};
+            AccountUser *user = new AccountUser{userName, masterKeyId, masterKeyAlgorithmVersion};
 
             Setting &servicesSetting = config.lookup("services");
             for (int i = 0; i < servicesSetting.getLength(); ++i) {
@@ -172,7 +172,7 @@ account_user *user_manager::readUserFromConfig(std::string &userName) {
                     continue;
                 }
 
-                mpw_service service = mpw_service{name, (MPSiteType) type, (MPAlgorithmVersion) serviceAlgorithmVersion, counter};
+                Service service = Service{name, (MPSiteType) type, (MPAlgorithmVersion) serviceAlgorithmVersion, counter};
                 user->addService(service);
             }
 
@@ -188,7 +188,7 @@ account_user *user_manager::readUserFromConfig(std::string &userName) {
     return NULL;
 }
 
-void user_manager::writeUserToConfig(user &user) {
+void UserManager::writeUserToConfig(User &user) {
     using namespace libconfig;
 
     // Create a config object and insert the values
@@ -222,12 +222,12 @@ void user_manager::writeUserToConfig(user &user) {
     std::cout << "Success writing user config." << std::endl;
 }
 
-bool user_manager::createUser(std::string &userName, std::string &masterPassword) {
+bool UserManager::createUser(std::string &userName, std::string &masterPassword) {
     if (existsUser(userName)) {
         return false;
     }
 
-    incognito_user user = incognito_user{userName};
+    IncognitoUser user = IncognitoUser{userName};
     user.unlockMasterKey(masterPassword);
 
     writeUserToConfig(user);

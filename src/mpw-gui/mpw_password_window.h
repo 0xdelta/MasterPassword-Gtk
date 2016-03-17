@@ -15,8 +15,8 @@
 
 class mpw_password_window : public mpw_window {
 private:
-    user_manager *userManager;
-    user *usr;
+    UserManager *userManager;
+    User *user;
 
     Gtk::Entry *serviceEntry, *passwordOutput;
     Gtk::CheckButton *passwordVisibility;
@@ -24,14 +24,14 @@ private:
     Gtk::SpinButton *counterSpinButton;
 
 public:
-    mpw_password_window(user_manager *userManager, user *_user);
-    ~mpw_password_window();
+    mpw_password_window(UserManager *userManager, User *_user);
+    virtual ~mpw_password_window();
 
 private:
     void logout();
-    void compute_and_show_password();
-    void update_password_visibility();
-    void copy_password();
+    void computeAndShowPassword();
+    void updatePasswordVisibility();
+    void copyPassword();
 };
 
 #endif //MPW_GTK_MPW_PASSWORD_WINDOW_H

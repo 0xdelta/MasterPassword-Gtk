@@ -9,7 +9,7 @@
 #include <bits/stl_function.h>
 #include <mpw-algorithm.h>
 
-class mpw_service {
+class Service {
 private:
     std::string name;
     MPSiteType type;
@@ -17,11 +17,10 @@ private:
     int counter;
 
 public:
-    //mpw_service(mpw_service &service);
-    mpw_service(std::string name);
-    mpw_service(std::string name, MPSiteType siteType, MPAlgorithmVersion algorithmVersion, int counter);
+    Service(std::string name);
+    Service(std::string name, MPSiteType siteType, MPAlgorithmVersion algorithmVersion, int counter);
 
-    bool operator==(const mpw_service &other);
+    bool operator==(const Service &other);
 
     const std::string &getName() const {
         return name;

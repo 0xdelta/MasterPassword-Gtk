@@ -13,7 +13,7 @@
 #include "mpw_password_window.h"
 #include "simple_columns.h"
 
-mpw_login_window::mpw_login_window(user_manager *_userManager) :
+mpw_login_window::mpw_login_window(UserManager *_userManager) :
         userManager(_userManager) {
     auto builder = Gtk::Builder::create_from_file("ui/login.ui");
 
@@ -27,26 +27,26 @@ mpw_login_window::mpw_login_window(user_manager *_userManager) :
     builder->get_widget("incognito-login", incognitoLoginButton);
     builder->get_widget("account-login", accountLoginButton);
 
-    createAccountButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::create_account));
+    createAccountButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::createAccount));
 
-    incognitoLoginButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::incognito_login));
-    incognitoPasswordEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::incognito_login));
-    incognitoPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_incognito_login_button));
-    incognitoUserEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::incognito_login));
-    incognitoUserEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_incognito_login_button));
+    incognitoLoginButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::incognitoLogin));
+    incognitoPasswordEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::incognitoLogin));
+    incognitoPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::updateIncognitoLoginButton));
+    incognitoUserEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::incognitoLogin));
+    incognitoUserEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::updateIncognitoLoginButton));
 
-    accountLoginButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::account_login));
-    accountPasswordEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::account_login));
-    accountPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_account_login_button));
-    accountUserSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_account_login_button));
+    accountLoginButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::accountLogin));
+    accountPasswordEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::accountLogin));
+    accountPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::updateAccountLoginButton));
+    accountUserSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::updateAccountLoginButton));
 
-    accountUserSelect->pack_start(simple_columns_instance.col_name);
-    update_available_users();
+    accountUserSelect->pack_start(simpleColumnsInstance.col_name);
+    updateAvailableUsers();
 }
 
-void mpw_login_window::update_available_users() {
+void mpw_login_window::updateAvailableUsers() {
     // Create the model for the user select in the account tab
-    Glib::RefPtr<Gtk::ListStore> usersModel = Gtk::ListStore::create(simple_columns_instance);
+    Glib::RefPtr<Gtk::ListStore> usersModel = Gtk::ListStore::create(simpleColumnsInstance);
     accountUserSelect->set_model(usersModel);
 
     // Fill the password types model
@@ -54,7 +54,7 @@ void mpw_login_window::update_available_users() {
     for (auto pair : userManager->getAvailableUsers()) {
         std::string userName = pair.first;
         row = *(usersModel->append());
-        simple_columns_instance.apply(row, {0, userName, 0});
+        simpleColumnsInstance.apply(row, {0, userName, 0});
 
         if (userManager->getLastUser() == userName) {
             accountUserSelect->set_active(row);
@@ -62,39 +62,7 @@ void mpw_login_window::update_available_users() {
     }
 }
 
-void mpw_login_window::incognito_login() {
-    // Create the user from the input form
-    std::string userName = std::string(incognitoUserEntry->get_text());
-    std::string masterPassword = std::string(incognitoPasswordEntry->get_text());
-
-    // Check whether the input is ok
-    if (userName.size() == 0 || masterPassword.size() == 0) {
-        return;
-    }
-
-    // Create the user
-    incognito_user *user = new incognito_user{userName};
-    user->unlockMasterKey(masterPassword);
-
-    // Create the window
-    mpw_password_window *passwordWindow = new mpw_password_window{userManager, user};
-
-    // Add the password window to the gtk application
-    window->get_application()->add_window(*passwordWindow->getWindow());
-
-    std::cout << "debug delete 2" << std::endl;
-
-    // Hide and delete this window
-    window->hide();
-    delete this;
-}
-
-void mpw_login_window::update_incognito_login_button() {
-    incognitoLoginButton->set_sensitive(
-            incognitoUserEntry->get_text().size() > 0 && incognitoPasswordEntry->get_text().size() > 0);
-}
-
-void mpw_login_window::account_login() {
+void mpw_login_window::accountLogin() {
     Gtk::TreeModel::iterator userItr = accountUserSelect->get_active();
     if (!userItr) {
         return;
@@ -106,7 +74,7 @@ void mpw_login_window::account_login() {
     }
 
     // Create the user from the input form
-    std::string userName = (std::string) userRow.get_value(simple_columns_instance.col_name);
+    std::string userName = (std::string) userRow.get_value(simpleColumnsInstance.col_name);
     std::string masterPassword = std::string(accountPasswordEntry->get_text());
 
     // Check whether the input is ok
@@ -124,7 +92,7 @@ void mpw_login_window::account_login() {
         return;
     }
 
-    account_user *user = userManager->readUserFromConfig(userName);
+    AccountUser *user = userManager->readUserFromConfig(userName);
 
     if (!user->unlockMasterKey(masterPassword)) {
         accountPasswordEntry->set_text("");
@@ -153,12 +121,44 @@ void mpw_login_window::account_login() {
     delete this;
 }
 
-void mpw_login_window::update_account_login_button() {
+void mpw_login_window::updateAccountLoginButton() {
     accountLoginButton->set_sensitive(
             accountUserSelect->get_active() && accountPasswordEntry->get_text().size() > 0);
 }
 
-void mpw_login_window::create_account() {
+void mpw_login_window::incognitoLogin() {
+    // Create the user from the input form
+    std::string userName = std::string(incognitoUserEntry->get_text());
+    std::string masterPassword = std::string(incognitoPasswordEntry->get_text());
+
+    // Check whether the input is ok
+    if (userName.size() == 0 || masterPassword.size() == 0) {
+        return;
+    }
+
+    // Create the user
+    IncognitoUser *user = new IncognitoUser{userName};
+    user->unlockMasterKey(masterPassword);
+
+    // Create the window
+    mpw_password_window *passwordWindow = new mpw_password_window{userManager, user};
+
+    // Add the password window to the gtk application
+    window->get_application()->add_window(*passwordWindow->getWindow());
+
+    std::cout << "debug delete 2" << std::endl;
+
+    // Hide and delete this window
+    window->hide();
+    delete this;
+}
+
+void mpw_login_window::updateIncognitoLoginButton() {
+    incognitoLoginButton->set_sensitive(
+            incognitoUserEntry->get_text().size() > 0 && incognitoPasswordEntry->get_text().size() > 0);
+}
+
+void mpw_login_window::createAccount() {
     mpw_create_account_window *createAccountWindow = new mpw_create_account_window{userManager};
-    createAccountWindow->getWindow()->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::update_available_users));
+    createAccountWindow->getWindow()->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::updateAvailableUsers));
 }

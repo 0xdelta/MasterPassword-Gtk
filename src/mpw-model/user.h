@@ -8,9 +8,9 @@
 #include <string>
 #include <list>
 #include "mpw-algorithm.h"
-#include "mpw_service.h"
+#include "service.h"
 
-class user {
+class User {
 protected:
     const std::string userName;
     const uint8_t *masterKey = nullptr;
@@ -18,20 +18,20 @@ protected:
     MPAlgorithmVersion algorithmVersion;
 
 protected:
-    user(std::string userName);
-    user(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion);
+    User(std::string userName);
+    User(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion);
 
 public:
-    virtual ~user();
+    virtual ~User();
 
 public:
     std::string passwordForService(std::string &siteName, MPSiteType siteType, MPAlgorithmVersion version, uint32_t counter);
 
     virtual bool isIncognito() = 0;
     virtual bool unlockMasterKey(std::string &masterPassword) = 0;
-    virtual const std::list<mpw_service> &getServices() const = 0;
-    virtual void addService(mpw_service &service) = 0;
-    virtual void removeService(mpw_service &service) = 0;
+    virtual const std::list<Service> &getServices() const = 0;
+    virtual void addService(Service &service) = 0;
+    virtual void removeService(Service &service) = 0;
 
     const std::string &getUserName() const {
         return userName;

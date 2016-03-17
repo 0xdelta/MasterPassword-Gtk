@@ -10,23 +10,23 @@
 #include <gtkmm/treemodelcolumn.h>
 
 
-struct simple_row_data {
+struct SimpleRowData {
     int id;
     Glib::ustring name;
     int data;
 };
 
-class simple_columns : public Gtk::TreeModel::ColumnRecord {
+class SimpleColumns : public Gtk::TreeModel::ColumnRecord {
 public:
     Gtk::TreeModelColumn<int> col_id;
     Gtk::TreeModelColumn<Glib::ustring> col_name;
     Gtk::TreeModelColumn<int> col_data;
 
-    simple_columns();
+    SimpleColumns();
 
-    void apply(Gtk::TreeModel::Row row, simple_row_data data);
+    void apply(Gtk::TreeModel::Row row, SimpleRowData data);
 };
 
-static simple_columns simple_columns_instance;
+static SimpleColumns simpleColumnsInstance;
 
 #endif //MPW_GTK_SIMPLE_COLUMN_RECORD_H

@@ -13,15 +13,15 @@
 
 class mpw_create_account_window : public mpw_window {
 private:
-    user_manager *userManager;
+    UserManager *userManager;
     Gtk::ProgressBar *passwordStrength;
     Gtk::Entry *userEntry, *passwordEntry, *repeatPasswordEntry;
     Gtk::Button *cancelButton,*createButton;
 public:
-    mpw_create_account_window(user_manager *userManager);
+    mpw_create_account_window(UserManager *userManager);
 
-    void update_password_strength();
-    void update_create_button();
+    void updatePasswordStrength();
+    void updateCreateButton();
     void cancel();
     void create();
 };

@@ -6,9 +6,8 @@
 
 #include <gtkmm/builder.h>
 #include <gtkmm/messagedialog.h>
-#include <incognito_user.h>
 
-mpw_create_account_window::mpw_create_account_window(user_manager *_userManager) :
+mpw_create_account_window::mpw_create_account_window(UserManager *_userManager) :
         userManager(_userManager) {
     auto builder = Gtk::Builder::create_from_file("ui/create-account.ui");
 
@@ -22,10 +21,10 @@ mpw_create_account_window::mpw_create_account_window(user_manager *_userManager)
     builder->get_widget("create-button", createButton);
 
     // Signals
-    passwordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::update_password_strength));
-    userEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::update_create_button));
-    passwordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::update_create_button));
-    repeatPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::update_create_button));
+    passwordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::updatePasswordStrength));
+    userEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::updateCreateButton));
+    passwordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::updateCreateButton));
+    repeatPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_create_account_window::updateCreateButton));
     cancelButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_create_account_window::cancel));
     createButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_create_account_window::create));
     userEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_create_account_window::create));
@@ -33,11 +32,11 @@ mpw_create_account_window::mpw_create_account_window(user_manager *_userManager)
     repeatPasswordEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_create_account_window::create));
 }
 
-void mpw_create_account_window::update_password_strength() {
+void mpw_create_account_window::updatePasswordStrength() {
     passwordStrength->set_fraction(std::min(1.0, (double) passwordEntry->get_text().size() / 14));
 }
 
-void mpw_create_account_window::update_create_button() {
+void mpw_create_account_window::updateCreateButton() {
     createButton->set_sensitive(userEntry->get_text().size() > 0 &&
                                 passwordEntry->get_text().size() > 0 &&
                                 repeatPasswordEntry->get_text().size() > 0);
