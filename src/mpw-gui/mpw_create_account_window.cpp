@@ -6,7 +6,6 @@
 
 #include <gtkmm/builder.h>
 #include <gtkmm/messagedialog.h>
-#include <account_user.h>
 #include <incognito_user.h>
 
 mpw_create_account_window::mpw_create_account_window(user_manager *_userManager) :
@@ -76,11 +75,13 @@ void mpw_create_account_window::create() {
         return;
     }
 
-    // Create an incognito user, which doesn't needs
-    // a key id to instantiated
-    incognito_user user{userName};
-    user.unlockMasterKey(password);
-    userManager->writeUserToConfig(user);
+    if (!userManager->createUser(userName, password)) {
+        Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
+        dialog.set_secondary_text("Could not create a user with the name \"" + userName + "\".");
+        dialog.run();
+        return;
+    }
+
     userManager->writeToConfig();
 
     Gtk::MessageDialog dialog(*window, "Success", false, Gtk::MESSAGE_INFO);

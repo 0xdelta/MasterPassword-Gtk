@@ -3,6 +3,7 @@
 //
 
 #include "user_manager.h"
+#include "incognito_user.h"
 
 #include <sys/stat.h>
 #include <libconfig.h++>
@@ -63,6 +64,7 @@ void user_manager::readFromConfig() {
 
     try {
         if (configVersion == 1) {
+            lastUser = config.lookup("lastUser").c_str();
 
             Setting &usersSetting = config.lookup("users");
             for (int i = 0; i < usersSetting.getLength(); ++i) {
@@ -93,6 +95,7 @@ void user_manager::writeToConfig() {
     // Create a config object and insert the values
     Config config;
     config.getRoot().add("configVersion", Setting::Type::TypeInt) = 1;
+    config.getRoot().add("lastUser", Setting::Type::TypeString) = lastUser;
 
     Setting &usersSetting = config.getRoot().add("users", Setting::Type::TypeList);
     for (auto &pair : availableUsers) {
@@ -217,4 +220,17 @@ void user_manager::writeUserToConfig(user &user) {
 
     availableUsers.emplace(user.getUserName(), configFileName);
     std::cout << "Success writing user config." << std::endl;
+}
+
+bool user_manager::createUser(std::string &userName, std::string &masterPassword) {
+    if (existsUser(userName)) {
+        return false;
+    }
+
+    incognito_user user = incognito_user{userName};
+    user.unlockMasterKey(masterPassword);
+
+    writeUserToConfig(user);
+    setLastUser(userName);
+    return true;
 }

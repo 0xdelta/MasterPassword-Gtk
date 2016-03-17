@@ -40,19 +40,27 @@ mpw_login_window::mpw_login_window(user_manager *_userManager) :
     accountPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_account_login_button));
     accountUserSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_account_login_button));
 
+    accountUserSelect->pack_start(simple_columns_instance.col_name);
+    update_available_users();
+}
+
+void mpw_login_window::update_available_users() {
     // Create the model for the user select in the account tab
     Glib::RefPtr<Gtk::ListStore> usersModel = Gtk::ListStore::create(simple_columns_instance);
     accountUserSelect->set_model(usersModel);
-    accountUserSelect->pack_start(simple_columns_instance.col_name);
 
     // Fill the password types model
     Gtk::TreeModel::Row row;
     for (auto pair : userManager->getAvailableUsers()) {
+        std::string userName = pair.first;
         row = *(usersModel->append());
-        simple_columns_instance.apply(row, {0, pair.first, 0});
+        simple_columns_instance.apply(row, {0, userName, 0});
+
+        if (userManager->getLastUser() == userName) {
+            accountUserSelect->set_active(row);
+        }
     }
 }
-
 
 void mpw_login_window::incognito_login() {
     // Create the user from the input form
@@ -74,7 +82,7 @@ void mpw_login_window::incognito_login() {
     // Add the password window to the gtk application
     window->get_application()->add_window(*passwordWindow->getWindow());
 
-    std::cout << "delete me2!" << std::endl;
+    std::cout << "debug delete 2" << std::endl;
 
     // Hide and delete this window
     window->hide();
@@ -129,13 +137,16 @@ void mpw_login_window::account_login() {
         return;
     }
 
+    userManager->setLastUser(userName);
+    userManager->writeToConfig();
+
     // Create the window
     mpw_password_window *passwordWindow = new mpw_password_window{userManager, user};
 
     // Add the password window to the gtk application
     window->get_application()->add_window(*passwordWindow->getWindow());
 
-    std::cout << "delete me!" << std::endl;
+    std::cout << "debug delete 1" << std::endl;
 
     // Hide and delete this window
     window->hide();
@@ -148,5 +159,6 @@ void mpw_login_window::update_account_login_button() {
 }
 
 void mpw_login_window::create_account() {
-    new mpw_create_account_window{userManager};
+    mpw_create_account_window *createAccountWindow = new mpw_create_account_window{userManager};
+    createAccountWindow->getWindow()->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::update_available_users));
 }

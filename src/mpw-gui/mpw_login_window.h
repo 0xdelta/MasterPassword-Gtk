@@ -23,6 +23,7 @@ public:
     mpw_login_window(user_manager *userManager);
 
 private:
+    void update_available_users();
     void create_account();
     void incognito_login();
     void update_incognito_login_button();
