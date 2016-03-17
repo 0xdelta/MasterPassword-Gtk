@@ -24,9 +24,12 @@ public:
     void writeToConfig();
 
     bool existsUser(std::string &userName);
-    account_user* readUserFromConfig(std::string &userName);
+    account_user *readUserFromConfig(std::string &userName);
     void writeUserToConfig(user &user);
 
+    const std::unordered_map<std::string, std::string> &getAvailableUsers() const {
+        return availableUsers;
+    }
 };
 
 

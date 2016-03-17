@@ -9,13 +9,15 @@
 #include <gtkmm/window.h>
 #include <gtkmm/button.h>
 #include <user_manager.h>
+#include <gtkmm/combobox.h>
 #include "mpw_window.h"
 
 class mpw_login_window : public mpw_window {
 private:
     user_manager *userManager;
     Gtk::Entry *incognitoPasswordEntry, *incognitoUserEntry,
-            *accountPasswordEntry, *accountUserEntry;
+            *accountPasswordEntry;
+    Gtk::ComboBox *accountUserSelect;
     Gtk::Button *createAccountButton, *incognitoLoginButton, *accountLoginButton;
 public:
     mpw_login_window(user_manager *userManager);

@@ -8,8 +8,10 @@
 #include <gtkmm/messagedialog.h>
 #include <iostream>
 #include <incognito_user.h>
+#include <gtkmm/liststore.h>
 #include "mpw_login_window.h"
 #include "mpw_password_window.h"
+#include "simple_columns.h"
 
 mpw_login_window::mpw_login_window(user_manager *_userManager) :
         userManager(_userManager) {
@@ -21,7 +23,7 @@ mpw_login_window::mpw_login_window(user_manager *_userManager) :
     builder->get_widget("incognito-password-entry", incognitoPasswordEntry);
     builder->get_widget("account-password-entry", accountPasswordEntry);
     builder->get_widget("incognito-user-entry", incognitoUserEntry);
-    builder->get_widget("account-user-entry", accountUserEntry);
+    builder->get_widget("account-user-select", accountUserSelect);
     builder->get_widget("incognito-login", incognitoLoginButton);
     builder->get_widget("account-login", accountLoginButton);
 
@@ -36,8 +38,19 @@ mpw_login_window::mpw_login_window(user_manager *_userManager) :
     accountLoginButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::account_login));
     accountPasswordEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::account_login));
     accountPasswordEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_account_login_button));
-    accountUserEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::account_login));
-    accountUserEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::update_account_login_button));
+    accountUserSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::update_account_login_button));
+
+    // Create the model for the user select in the account tab
+    Glib::RefPtr<Gtk::ListStore> usersModel = Gtk::ListStore::create(simple_columns_instance);
+    accountUserSelect->set_model(usersModel);
+    accountUserSelect->pack_start(simple_columns_instance.col_name);
+
+    // Fill the password types model
+    Gtk::TreeModel::Row row;
+    for (auto pair : userManager->getAvailableUsers()) {
+        row = *(usersModel->append());
+        simple_columns_instance.apply(row, {0, pair.first, 0});
+    }
 }
 
 
@@ -61,21 +74,31 @@ void mpw_login_window::incognito_login() {
     // Add the password window to the gtk application
     window->get_application()->add_window(*passwordWindow->getWindow());
 
+    std::cout << "delete me2!" << std::endl;
+
     // Hide and delete this window
     window->hide();
     delete this;
 }
 
 void mpw_login_window::update_incognito_login_button() {
-    Glib::ustring userName = incognitoUserEntry->get_text();
-    Glib::ustring masterPassword = incognitoPasswordEntry->get_text();
-
-    incognitoLoginButton->set_sensitive(userName.size() > 0 && masterPassword.size() > 0);
+    incognitoLoginButton->set_sensitive(
+            incognitoUserEntry->get_text().size() > 0 && incognitoPasswordEntry->get_text().size() > 0);
 }
 
 void mpw_login_window::account_login() {
+    Gtk::TreeModel::iterator userItr = accountUserSelect->get_active();
+    if (!userItr) {
+        return;
+    }
+
+    Gtk::TreeModel::Row userRow = *userItr;
+    if (!userRow) {
+        return;
+    }
+
     // Create the user from the input form
-    std::string userName = std::string(accountUserEntry->get_text());
+    std::string userName = (std::string) userRow.get_value(simple_columns_instance.col_name);
     std::string masterPassword = std::string(accountPasswordEntry->get_text());
 
     // Check whether the input is ok
@@ -112,16 +135,16 @@ void mpw_login_window::account_login() {
     // Add the password window to the gtk application
     window->get_application()->add_window(*passwordWindow->getWindow());
 
+    std::cout << "delete me!" << std::endl;
+
     // Hide and delete this window
     window->hide();
     delete this;
 }
 
 void mpw_login_window::update_account_login_button() {
-    Glib::ustring userName = accountUserEntry->get_text();
-    Glib::ustring masterPassword = accountPasswordEntry->get_text();
-
-    accountLoginButton->set_sensitive(userName.size() > 0 && masterPassword.size() > 0);
+    accountLoginButton->set_sensitive(
+            accountUserSelect->get_active() && accountPasswordEntry->get_text().size() > 0);
 }
 
 void mpw_login_window::create_account() {

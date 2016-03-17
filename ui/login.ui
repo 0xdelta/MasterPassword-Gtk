@@ -96,19 +96,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="account-user-entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">1</property>
-                <property name="width">2</property>
-                <property name="height">1</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkButton" id="create-account">
                 <property name="label" translatable="yes">Create Account</property>
                 <property name="visible">True</property>
@@ -119,6 +106,18 @@
                 <property name="left_attach">1</property>
                 <property name="top_attach">3</property>
                 <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="account-user-select">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
+                <property name="width">2</property>
                 <property name="height">1</property>
               </packing>
             </child>
