@@ -6,7 +6,7 @@
 #define MPW_GTK_USER_H
 
 #include <string>
-#include <list>
+#include <unordered_map>
 #include "mpw-algorithm.h"
 #include "service.h"
 
@@ -29,9 +29,9 @@ public:
 
     virtual bool isIncognito() = 0;
     virtual bool unlockMasterKey(std::string &masterPassword) = 0;
-    virtual const std::list<Service> &getServices() const = 0;
+    virtual const std::unordered_map<std::string, Service> &getServices() const = 0;
     virtual void addService(Service &service) = 0;
-    virtual void removeService(Service &service) = 0;
+    virtual void removeService(std::string serviceName) = 0;
 
     const std::string &getUserName() const {
         return userName;

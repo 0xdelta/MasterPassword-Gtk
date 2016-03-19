@@ -37,6 +37,18 @@ public:
     int getCounter() const {
         return counter;
     }
+
+    void setType(MPSiteType type) {
+        Service::type = type;
+    }
+
+    void setAlgorithmVersion(MPAlgorithmVersion algorithmVersion) {
+        Service::algorithmVersion = algorithmVersion;
+    }
+
+    void setCounter(int counter) {
+        Service::counter = counter;
+    }
 };
 
 

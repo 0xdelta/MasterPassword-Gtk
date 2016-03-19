@@ -17,11 +17,11 @@ bool IncognitoUser::unlockMasterKey(std::string &masterPassword) {
     return true;
 }
 
-const std::list<Service> &IncognitoUser::getServices() const {
+const std::unordered_map<std::string, Service> &IncognitoUser::getServices() const {
     // Incognito users can't store sites, so return an empty list
-    return std::list<Service>{};
+    return std::unordered_map<std::string, Service>{};
 }
 
 void IncognitoUser::addService(Service &service) { }
 
-void IncognitoUser::removeService(Service &service) { }
+void IncognitoUser::removeService(std::string serviceName) { }

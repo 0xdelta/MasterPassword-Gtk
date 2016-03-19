@@ -198,7 +198,8 @@ void UserManager::writeUserToConfig(User &user) {
     config.getRoot().add("algorithmVersion", Setting::Type::TypeInt) = (int) user.getAlgorithmVersion();
 
     Setting &servicesSetting = config.getRoot().add("services", Setting::Type::TypeList);
-    for (auto &service : user.getServices()) {
+    for (auto &pair : user.getServices()) {
+        Service service = pair.second;
         Setting &serviceSetting = servicesSetting.add(Setting::Type::TypeGroup);
         serviceSetting.add("name", Setting::Type::TypeString) = service.getName();
         serviceSetting.add("type", Setting::Type::TypeInt) = (int) service.getType();

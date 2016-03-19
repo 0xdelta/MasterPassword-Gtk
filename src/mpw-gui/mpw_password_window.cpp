@@ -101,9 +101,10 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     completion->set_model(autoCompleteModel);
     completion->set_text_column(simpleColumnsInstance.col_name);
 
-    for (auto &site : user->getServices()) {
+    for (auto &pair : user->getServices()) {
+        Service service = pair.second;
         row = *(autoCompleteModel->append());
-        simpleColumnsInstance.apply(row, {0, site.getName(), 0});
+        simpleColumnsInstance.apply(row, {0, service.getName(), 0});
     }
 }
 

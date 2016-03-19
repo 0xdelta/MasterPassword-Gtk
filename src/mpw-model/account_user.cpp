@@ -38,14 +38,15 @@ bool AccountUser::unlockMasterKey(std::string &masterPassword) {
     return false;
 }
 
-const std::list<Service> &AccountUser::getServices() const {
+const std::unordered_map<std::string, Service> &AccountUser::getServices() const {
     return services;
 }
 
 void AccountUser::addService(Service &service) {
-    services.push_back(Service{service});
+    // Clone and store the object
+    services.emplace(service.getName(), Service{service});
 }
 
-void AccountUser::removeService(Service &service) {
-    services.remove(service);
+void AccountUser::removeService(std::string serviceName) {
+    services.erase(serviceName);
 }
