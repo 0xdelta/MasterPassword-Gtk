@@ -4,11 +4,8 @@
 
 #include "algorithm_version.h"
 
-AlgorithmVersion::AlgorithmVersion(int id, const std::string &displayName, MPAlgorithmVersion mpAlgorithmVersion) : id(id), displayName(displayName), mpAlgorithmVersion(mpAlgorithmVersion) { }
-
-int AlgorithmVersion::getId() const {
-    return id;
-}
+AlgorithmVersion::AlgorithmVersion(const std::string &displayName, MPAlgorithmVersion mpAlgorithmVersion) :
+        displayName(displayName), mpAlgorithmVersion(mpAlgorithmVersion) { }
 
 const std::string &AlgorithmVersion::getDisplayName() const {
     return displayName;

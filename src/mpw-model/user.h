@@ -26,6 +26,7 @@ public:
 
 public:
     std::string passwordForService(std::string &siteName, MPSiteType siteType, MPAlgorithmVersion version, uint32_t counter);
+    std::string passwordForService(Service &service);
 
     virtual bool isIncognito() = 0;
     virtual bool unlockMasterKey(std::string &masterPassword) = 0;

@@ -12,24 +12,8 @@
 #include "mpw_password_window.h"
 #include "simple_columns.h"
 
-static SimpleRowData passwordTypes[] = {
-        {0x0, "Maximum", MPSiteTypeGeneratedMaximum},
-        {0x1, "Long",    MPSiteTypeGeneratedLong},
-        {0x2, "Medium",  MPSiteTypeGeneratedMedium},
-        {0x3, "Basic",   MPSiteTypeGeneratedBasic},
-        {0x4, "Short",   MPSiteTypeGeneratedShort},
-        {0x5, "PIN",     MPSiteTypeGeneratedPIN},
-        {0xE, "Name",    MPSiteTypeGeneratedName},
-        {0xF, "Phrase",  MPSiteTypeGeneratedPhrase}
-};
-static SimpleRowData defaultPasswordType = passwordTypes[1]; // Generated long
-
-static SimpleRowData mpwVersions[] = {
-        {1, "V1", MPAlgorithmVersion1},
-        {2, "V2", MPAlgorithmVersion2},
-        {3, "V3", MPAlgorithmVersion3},
-};
-static SimpleRowData defaultMpwVersion = mpwVersions[2]; // V3
+#include "password_type.h"
+#include "algorithm_version.h"
 
 mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) :
         user(_usr), userManager(_userManager) {
@@ -52,9 +36,9 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     serviceEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
     serviceEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_password_window::copyPassword));
     passwordVisibility->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::updatePasswordVisibility));
-    passwordTypeSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
-    mpwVersionSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
-    counterSpinButton->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
+    passwordTypeSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceSettingsChanged));
+    mpwVersionSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceSettingsChanged));
+    counterSpinButton->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceSettingsChanged));
     logoutButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::logout));
     copyButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::copyPassword));
 
@@ -74,26 +58,26 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     Gtk::TreeModel::Row row;
 
     // Fill the password types model
-    for (auto type : passwordTypes) {
+    for (auto &type : passwordTypes) {
         row = *(passwordTypesModel->append());
-        simpleColumnsInstance.apply(row, type);
+        simpleColumnsInstance.apply(row, {type.getName(), type.getMpSiteType()});
 
-        if (type.id == defaultPasswordType.id) {
+        if (type.getMpSiteType() == defaultPasswordType.getMpSiteType()) {
             passwordTypeSelect->set_active(row);
         }
     }
 
     //Fill the ComboBox's Tree Model:
-    for (auto type : mpwVersions) {
+    for (auto &version : algorithmVersions) {
         row = *(mpwVersionsModel->append());
-        simpleColumnsInstance.apply(row, type);
+        simpleColumnsInstance.apply(row, {version.getDisplayName(), version.getMpAlgorithmVersion()});
 
-        if (type.id == defaultMpwVersion.id) {
+        if (version.getMpAlgorithmVersion() == defaultAlgorithmVersion.getMpAlgorithmVersion()) {
             mpwVersionSelect->set_active(row);
         }
     }
 
-    // Completion for the service entry
+    // Auto Completion for the service entry
     auto completion = Gtk::EntryCompletion::create();
     auto autoCompleteModel = Gtk::ListStore::create(simpleColumnsInstance);
 
@@ -104,7 +88,7 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     for (auto &pair : user->getServices()) {
         Service service = pair.second;
         row = *(autoCompleteModel->append());
-        simpleColumnsInstance.apply(row, {0, service.getName(), 0});
+        simpleColumnsInstance.apply(row, {service.getName(), 0});
     }
 }
 
@@ -124,40 +108,73 @@ void mpw_password_window::logout() {
     delete this;
 }
 
+void mpw_password_window::serviceSettingsChanged() {
+    std::string serviceName = serviceEntry->get_text();
+
+    if (user->getServices().find(serviceName) != user->getServices().end()) {
+        Service &service = (Service &) user->getServices().at(serviceName);
+
+        Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
+        Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
+        if (!siteTypeItr || !mpwVersionItr) {
+            goto show;
+        }
+
+        Gtk::TreeModel::Row siteTypeRow = *siteTypeItr;
+        Gtk::TreeModel::Row mpwVersionRow = *mpwVersionItr;
+        if (!siteTypeRow || !mpwVersionRow) {
+            goto show;
+        }
+
+        // Collect the needed data
+        MPSiteType type = (MPSiteType) siteTypeRow[simpleColumnsInstance.col_data];
+        MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simpleColumnsInstance.col_data];
+        uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
+
+        service.setType(type);
+        service.setAlgorithmVersion(version);
+        service.setCounter(counter);
+
+        userManager->writeUserToConfig(*user);
+    }
+
+    show:
+    computeAndShowPassword();
+}
+
 void mpw_password_window::computeAndShowPassword() {
-    Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
-    Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
-    if (!siteTypeItr || !mpwVersionItr) {
+    std::string serviceName = serviceEntry->get_text();
+    if (serviceName.size() == 0) {
         passwordOutput->set_text("");
         return;
     }
 
-    Gtk::TreeModel::Row siteTypeRow = *siteTypeItr;
-    Gtk::TreeModel::Row mpwVersionRow = *mpwVersionItr;
-    if (!siteTypeRow || !mpwVersionRow) {
-        passwordOutput->set_text("");
-        return;
-    }
+    if (user->getServices().find(serviceName) == user->getServices().end()) {
+        // No Service found
 
-    // Collect the needed data
-    std::string service = serviceEntry->get_text();
-    MPSiteType type = (MPSiteType) siteTypeRow[simpleColumnsInstance.col_data];
-    MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simpleColumnsInstance.col_data];
-    uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
-
-    // Set the output password
-    if (service.size() == 0) {
-        passwordOutput->set_text("");
-    } else {
-        //try {
-            passwordOutput->set_text(user->passwordForService(service, type, version, counter));
-        /*} catch (password_generate_exception &e) {
+        Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
+        Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
+        if (!siteTypeItr || !mpwVersionItr) {
             passwordOutput->set_text("");
+            return;
+        }
 
-            Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
-            dialog.set_secondary_text("Could not generate password: " + std::string{e.what()});
-            dialog.run();
-        }*/ //TODO
+        Gtk::TreeModel::Row siteTypeRow = *siteTypeItr;
+        Gtk::TreeModel::Row mpwVersionRow = *mpwVersionItr;
+        if (!siteTypeRow || !mpwVersionRow) {
+            passwordOutput->set_text("");
+            return;
+        }
+
+        // Collect the needed data
+        MPSiteType type = (MPSiteType) siteTypeRow[simpleColumnsInstance.col_data];
+        MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simpleColumnsInstance.col_data];
+        uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
+
+        // Set the output password
+        passwordOutput->set_text(user->passwordForService(serviceName, type, version, counter));
+    } else {
+        passwordOutput->set_text(user->passwordForService((Service &) user->getServices().at(serviceName)));
     }
 }
 
@@ -176,3 +193,5 @@ void mpw_password_window::copyPassword() {
     // Revert the visibility to the old state
     updatePasswordVisibility();
 }
+
+

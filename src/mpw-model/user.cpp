@@ -32,3 +32,9 @@ std::string User::passwordForService(std::string &siteName, MPSiteType siteType,
     }
     return std::string{res};
 }
+
+std::string User::passwordForService(Service &service) {
+    return passwordForService((std::string &) service.getName(), service.getType(), service.getAlgorithmVersion(), (uint32_t) service.getCounter());
+}
+
+

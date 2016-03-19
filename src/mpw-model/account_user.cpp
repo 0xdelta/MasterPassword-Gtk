@@ -7,8 +7,7 @@
 #include "account_user.h"
 
 AccountUser::AccountUser(std::string userName, const uint8_t *masterKeyId, MPAlgorithmVersion algorithmVersion) :
-        User(userName, masterKeyId, algorithmVersion) {
-}
+        User(userName, masterKeyId, algorithmVersion) { }
 
 bool AccountUser::isIncognito() {
     return false;

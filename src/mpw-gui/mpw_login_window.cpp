@@ -54,7 +54,7 @@ void mpw_login_window::updateAvailableUsers() {
     for (auto pair : userManager->getAvailableUsers()) {
         std::string userName = pair.first;
         row = *(usersModel->append());
-        simpleColumnsInstance.apply(row, {0, userName, 0});
+        simpleColumnsInstance.apply(row, {userName, 0});
 
         if (userManager->getLastUser() == userName) {
             accountUserSelect->set_active(row);
@@ -104,6 +104,8 @@ void mpw_login_window::accountLogin() {
         delete user;
         return;
     }
+
+    userManager->writeUserToConfig(*user);
 
     userManager->setLastUser(userName);
     userManager->writeToConfig();

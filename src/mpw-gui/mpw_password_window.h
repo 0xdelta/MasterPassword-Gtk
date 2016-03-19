@@ -29,6 +29,7 @@ public:
 
 private:
     void logout();
+    void serviceSettingsChanged();
     void computeAndShowPassword();
     void updatePasswordVisibility();
     void copyPassword();

@@ -11,14 +11,12 @@
 
 
 struct SimpleRowData {
-    int id;
     Glib::ustring name;
     int data;
 };
 
 class SimpleColumns : public Gtk::TreeModel::ColumnRecord {
 public:
-    Gtk::TreeModelColumn<int> col_id;
     Gtk::TreeModelColumn<Glib::ustring> col_name;
     Gtk::TreeModelColumn<int> col_data;
 

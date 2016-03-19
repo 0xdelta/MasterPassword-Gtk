@@ -4,12 +4,8 @@
 
 #include "password_type.h"
 
-PasswordType::PasswordType(int id, const std::string &name, MPSiteType mpSiteType) :
-        id(id), name(name), mpSiteType(mpSiteType) { }
-
-int PasswordType::getId() const {
-    return id;
-}
+PasswordType::PasswordType(const std::string &name, MPSiteType mpSiteType) :
+        name(name), mpSiteType(mpSiteType) { }
 
 const std::string &PasswordType::getName() const {
     return name;

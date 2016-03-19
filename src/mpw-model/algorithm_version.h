@@ -10,22 +10,20 @@
 
 class AlgorithmVersion {
 private:
-    int id;
     std::string displayName;
     MPAlgorithmVersion mpAlgorithmVersion;
 
 public:
-    AlgorithmVersion(int id, const std::string &displayName, MPAlgorithmVersion mpAlgorithmVersion);
+    AlgorithmVersion(const std::string &displayName, MPAlgorithmVersion mpAlgorithmVersion);
 
-    int getId() const;
     const std::string &getDisplayName() const;
     MPAlgorithmVersion getMpAlgorithmVersion() const;
 };
 
 static AlgorithmVersion algorithmVersions[] = {
-        {1, "V1", MPAlgorithmVersion1},
-        {2, "V2", MPAlgorithmVersion2},
-        {3, "V3", MPAlgorithmVersion3},
+        {"V1", MPAlgorithmVersion1},
+        {"V2", MPAlgorithmVersion2},
+        {"V3", MPAlgorithmVersion3},
 };
 static AlgorithmVersion defaultAlgorithmVersion = algorithmVersions[2]; // V3
 

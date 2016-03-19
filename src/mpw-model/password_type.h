@@ -10,27 +10,25 @@
 
 class PasswordType {
 private:
-    int id;
     std::string name;
     MPSiteType mpSiteType;
 
 public:
-    PasswordType(int id, const std::string &name, MPSiteType mpSiteType);
+    PasswordType(const std::string &name, MPSiteType mpSiteType);
 
-    int getId() const;
     const std::string &getName() const;
     MPSiteType getMpSiteType() const;
 };
 
 static PasswordType passwordTypes[] = {
-        {0x0, "Maximum", MPSiteTypeGeneratedMaximum},
-        {0x1, "Long",    MPSiteTypeGeneratedLong},
-        {0x2, "Medium",  MPSiteTypeGeneratedMedium},
-        {0x3, "Basic",   MPSiteTypeGeneratedBasic},
-        {0x4, "Short",   MPSiteTypeGeneratedShort},
-        {0x5, "PIN",     MPSiteTypeGeneratedPIN},
-        {0xE, "Name",    MPSiteTypeGeneratedName},
-        {0xF, "Phrase",  MPSiteTypeGeneratedPhrase}
+        {"Maximum", MPSiteTypeGeneratedMaximum},
+        {"Long",    MPSiteTypeGeneratedLong},
+        {"Medium",  MPSiteTypeGeneratedMedium},
+        {"Basic",   MPSiteTypeGeneratedBasic},
+        {"Short",   MPSiteTypeGeneratedShort},
+        {"PIN",     MPSiteTypeGeneratedPIN},
+        {"Name",    MPSiteTypeGeneratedName},
+        {"Phrase",  MPSiteTypeGeneratedPhrase}
 };
 static PasswordType defaultPasswordType = passwordTypes[1]; // Long
 
