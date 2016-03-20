@@ -77,18 +77,20 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
         }
     }
 
-    // Auto Completion for the service entry
-    auto completion = Gtk::EntryCompletion::create();
-    auto autoCompleteModel = Gtk::ListStore::create(simpleColumnsInstance);
+    if (!user->isIncognito()) {
+        // Auto Completion for the service entry
+        auto completion = Gtk::EntryCompletion::create();
+        auto autoCompleteModel = Gtk::ListStore::create(simpleColumnsInstance);
 
-    serviceEntry->set_completion(completion);
-    completion->set_model(autoCompleteModel);
-    completion->set_text_column(simpleColumnsInstance.col_name);
+        serviceEntry->set_completion(completion);
+        completion->set_model(autoCompleteModel);
+        completion->set_text_column(simpleColumnsInstance.col_name);
 
-    for (auto &pair : *user->getServices()) {
-        Service service = pair.second;
-        row = *(autoCompleteModel->append());
-        simpleColumnsInstance.apply(row, {service.getName(), 0});
+        for (auto &pair : *user->getServices()) {
+            Service service = pair.second;
+            row = *(autoCompleteModel->append());
+            simpleColumnsInstance.apply(row, {service.getName(), 0});
+        }
     }
 }
 
