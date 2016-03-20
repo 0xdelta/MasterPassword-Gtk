@@ -16,7 +16,7 @@
 #include "algorithm_version.h"
 
 mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) :
-        user(_usr), userManager(_userManager) {
+        userManager(_userManager), user(_usr) {
     auto builder = Gtk::Builder::create_from_file("ui/password.ui");
 
     Gtk::Button *logoutButton, *copyButton;
@@ -33,7 +33,7 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     builder->get_widget("copy-password", copyButton);
 
     // Signals
-    serviceEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::computeAndShowPassword));
+    serviceEntry->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceNameChanged));
     serviceEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_password_window::copyPassword));
     passwordVisibility->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::updatePasswordVisibility));
     passwordTypeSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceSettingsChanged));
@@ -60,7 +60,7 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     // Fill the password types model
     for (auto &type : passwordTypes) {
         row = *(passwordTypesModel->append());
-        simpleColumnsInstance.apply(row, {type.getName(), type.getMpSiteType()});
+        simpleColumnsInstance.apply(row, {type.getName(), (int) type.getMpSiteType()});
 
         if (type.getMpSiteType() == defaultPasswordType.getMpSiteType()) {
             passwordTypeSelect->set_active(row);
@@ -70,7 +70,7 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     //Fill the ComboBox's Tree Model:
     for (auto &version : algorithmVersions) {
         row = *(mpwVersionsModel->append());
-        simpleColumnsInstance.apply(row, {version.getDisplayName(), version.getMpAlgorithmVersion()});
+        simpleColumnsInstance.apply(row, {version.getDisplayName(), (int) version.getMpAlgorithmVersion()});
 
         if (version.getMpAlgorithmVersion() == defaultAlgorithmVersion.getMpAlgorithmVersion()) {
             mpwVersionSelect->set_active(row);
@@ -85,7 +85,7 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     completion->set_model(autoCompleteModel);
     completion->set_text_column(simpleColumnsInstance.col_name);
 
-    for (auto &pair : user->getServices()) {
+    for (auto &pair : *user->getServices()) {
         Service service = pair.second;
         row = *(autoCompleteModel->append());
         simpleColumnsInstance.apply(row, {service.getName(), 0});
@@ -94,6 +94,32 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
 
 mpw_password_window::~mpw_password_window() {
     delete user;
+}
+
+void mpw_password_window::setServiceSettings(MPSiteType siteType, MPAlgorithmVersion algorithmVersion, int counter) {
+    // Site type
+    Gtk::TreeModel::Children types = passwordTypeSelect->get_model()->children();
+    for (Gtk::TreeModel::Children::iterator iter = types.begin(); iter != types.end(); ++iter) {
+        Gtk::TreeModel::Row row = *iter;
+        if (row.get_value(simpleColumnsInstance.col_data) == siteType) {
+            passwordTypeSelect->set_active(row);
+            break;
+        }
+    }
+
+    // Version
+    Gtk::TreeModel::Children versions = mpwVersionSelect->get_model()->children();
+    for (Gtk::TreeModel::Children::iterator iter = versions.begin(); iter != versions.end(); ++iter) {
+        Gtk::TreeModel::Row row = *iter;
+        if (row.get_value(simpleColumnsInstance.col_data) == algorithmVersion) {
+            mpwVersionSelect->set_active(row);
+            break;
+        }
+    }
+
+    // Counter
+    counterSpinButton->set_text(std::to_string(counter));
+    counterSpinButton->update();
 }
 
 void mpw_password_window::logout() {
@@ -108,11 +134,31 @@ void mpw_password_window::logout() {
     delete this;
 }
 
+void mpw_password_window::serviceNameChanged() {
+    std::string serviceName = serviceEntry->get_text();
+
+    if (!user->isIncognito() && user->getServices()->find(serviceName) != user->getServices()->end()) {
+        // Display stored info
+        Service &service = (Service &) user->getServices()->at(serviceName);
+
+        setServiceSettings(service.getType(), service.getAlgorithmVersion(), service.getCounter());
+    } else {
+        // Display defaults
+        setServiceSettings(defaultPasswordType.getMpSiteType(), defaultAlgorithmVersion.getMpAlgorithmVersion(), 1);
+    }
+
+    computeAndShowPassword();
+}
+
 void mpw_password_window::serviceSettingsChanged() {
     std::string serviceName = serviceEntry->get_text();
 
-    if (user->getServices().find(serviceName) != user->getServices().end()) {
-        Service &service = (Service &) user->getServices().at(serviceName);
+    if (!user->isIncognito() && user->getServices()->find(serviceName) != user->getServices()->end()) {
+        // The user changed the settings for a service, that is stored
+        // in his config file. So we have to update the service, in order
+        // to hold the config up to date.
+
+        Service &service = (Service &) user->getServices()->at(serviceName);
 
         Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
         Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
@@ -149,7 +195,7 @@ void mpw_password_window::computeAndShowPassword() {
         return;
     }
 
-    if (user->getServices().find(serviceName) == user->getServices().end()) {
+    if (user->isIncognito() || user->getServices()->find(serviceName) == user->getServices()->end()) {
         // No Service found
 
         Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
@@ -174,7 +220,8 @@ void mpw_password_window::computeAndShowPassword() {
         // Set the output password
         passwordOutput->set_text(user->passwordForService(serviceName, type, version, counter));
     } else {
-        passwordOutput->set_text(user->passwordForService((Service &) user->getServices().at(serviceName)));
+        Service &service = (Service &) user->getServices()->at(serviceName);
+        passwordOutput->set_text(user->passwordForService(service));
     }
 }
 
@@ -193,5 +240,3 @@ void mpw_password_window::copyPassword() {
     // Revert the visibility to the old state
     updatePasswordVisibility();
 }
-
-

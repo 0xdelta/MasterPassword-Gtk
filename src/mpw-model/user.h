@@ -30,7 +30,7 @@ public:
 
     virtual bool isIncognito() = 0;
     virtual bool unlockMasterKey(std::string &masterPassword) = 0;
-    virtual const std::unordered_map<std::string, Service> &getServices() const = 0;
+    virtual const std::unordered_map<std::string, Service> *getServices() const = 0;
     virtual void addService(Service &service) = 0;
     virtual void removeService(std::string serviceName) = 0;
 

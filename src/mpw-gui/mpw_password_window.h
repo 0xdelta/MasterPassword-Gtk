@@ -28,7 +28,9 @@ public:
     virtual ~mpw_password_window();
 
 private:
+    void setServiceSettings(MPSiteType siteType, MPAlgorithmVersion algorithmVersion, int counter);
     void logout();
+    void serviceNameChanged();
     void serviceSettingsChanged();
     void computeAndShowPassword();
     void updatePasswordVisibility();

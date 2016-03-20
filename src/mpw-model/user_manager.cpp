@@ -198,13 +198,16 @@ void UserManager::writeUserToConfig(User &user) {
     config.getRoot().add("algorithmVersion", Setting::Type::TypeInt) = (int) user.getAlgorithmVersion();
 
     Setting &servicesSetting = config.getRoot().add("services", Setting::Type::TypeList);
-    for (auto &pair : user.getServices()) {
-        Service service = pair.second;
-        Setting &serviceSetting = servicesSetting.add(Setting::Type::TypeGroup);
-        serviceSetting.add("name", Setting::Type::TypeString) = service.getName();
-        serviceSetting.add("type", Setting::Type::TypeInt) = (int) service.getType();
-        serviceSetting.add("algorithmVersion", Setting::Type::TypeInt) = (int) service.getAlgorithmVersion();
-        serviceSetting.add("counter", Setting::Type::TypeInt) = service.getCounter();
+
+    if (!user.isIncognito()) {
+        for (auto &pair : *user.getServices()) {
+            Service service = pair.second;
+            Setting &serviceSetting = servicesSetting.add(Setting::Type::TypeGroup);
+            serviceSetting.add("name", Setting::Type::TypeString) = service.getName();
+            serviceSetting.add("type", Setting::Type::TypeInt) = (int) service.getType();
+            serviceSetting.add("algorithmVersion", Setting::Type::TypeInt) = (int) service.getAlgorithmVersion();
+            serviceSetting.add("counter", Setting::Type::TypeInt) = service.getCounter();
+        }
     }
 
     // Create a stream to write the config

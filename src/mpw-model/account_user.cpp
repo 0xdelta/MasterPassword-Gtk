@@ -37,8 +37,8 @@ bool AccountUser::unlockMasterKey(std::string &masterPassword) {
     return false;
 }
 
-const std::unordered_map<std::string, Service> &AccountUser::getServices() const {
-    return services;
+const std::unordered_map<std::string, Service> *AccountUser::getServices() const {
+    return &services;
 }
 
 void AccountUser::addService(Service &service) {
