@@ -29,6 +29,7 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     builder->get_widget("password-type", passwordTypeSelect);
     builder->get_widget("mpw-version", mpwVersionSelect);
     builder->get_widget("counter", counterSpinButton);
+    builder->get_widget("modify-site-button", modifySiteButton);
     builder->get_widget("logout", logoutButton);
     builder->get_widget("copy-password", copyButton);
 
@@ -39,6 +40,7 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     passwordTypeSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceSettingsChanged));
     mpwVersionSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceSettingsChanged));
     counterSpinButton->signal_changed().connect(sigc::mem_fun(this, &mpw_password_window::serviceSettingsChanged));
+    modifySiteButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::modifySiteButtonClicked));
     logoutButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::logout));
     copyButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::copyPassword));
 
@@ -77,25 +79,58 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
         }
     }
 
-    if (!user->isIncognito()) {
-        // Auto Completion for the service entry
-        auto completion = Gtk::EntryCompletion::create();
-        auto autoCompleteModel = Gtk::ListStore::create(simpleColumnsInstance);
-
-        serviceEntry->set_completion(completion);
-        completion->set_model(autoCompleteModel);
-        completion->set_text_column(simpleColumnsInstance.col_name);
-
-        for (auto &pair : *user->getServices()) {
-            Service service = pair.second;
-            row = *(autoCompleteModel->append());
-            simpleColumnsInstance.apply(row, {service.getName(), 0});
-        }
+    if (user->isIncognito()) {
+        // Hide the modify site button
+        modifySiteButton->hide();
+    } else {
+        updateAutoCompletion();
     }
 }
 
 mpw_password_window::~mpw_password_window() {
     delete user;
+}
+
+Service mpw_password_window::getSelectedService() {
+    std::string serviceName = serviceEntry->get_text();
+
+    Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
+    Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
+    if (!siteTypeItr || !mpwVersionItr) {
+        return Service{serviceName};
+    }
+
+    Gtk::TreeModel::Row siteTypeRow = *siteTypeItr;
+    Gtk::TreeModel::Row mpwVersionRow = *mpwVersionItr;
+    if (!siteTypeRow || !mpwVersionRow) {
+        return Service{serviceName};
+    }
+
+    // Collect the needed data
+    MPSiteType type = (MPSiteType) siteTypeRow[simpleColumnsInstance.col_data];
+    MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simpleColumnsInstance.col_data];
+    uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
+
+    return Service{serviceName, type, version, (int) counter};
+}
+
+void mpw_password_window::updateAutoCompletion() {
+// Temporary variable
+    Gtk::TreeModel::Row row;
+
+    // Auto Completion for the service entry
+    auto completion = Gtk::EntryCompletion::create();
+    auto autoCompleteModel = Gtk::ListStore::create(simpleColumnsInstance);
+
+    serviceEntry->set_completion(completion);
+    completion->set_model(autoCompleteModel);
+    completion->set_text_column(simpleColumnsInstance.col_name);
+
+    for (auto &pair : *user->getServices()) {
+        Service service = pair.second;
+        row = *(autoCompleteModel->append());
+        simpleColumnsInstance.apply(row, {service.getName(), 0});
+    }
 }
 
 void mpw_password_window::setServiceSettings(MPSiteType siteType, MPAlgorithmVersion algorithmVersion, int counter) {
@@ -148,7 +183,10 @@ void mpw_password_window::serviceNameChanged() {
         // Display defaults
         setServiceSettings(defaultPasswordType.getMpSiteType(), defaultAlgorithmVersion.getMpAlgorithmVersion(), 1);
     }
+    // Show correct button (Remove service/Add service)
+    updateModifySiteButton();
 
+    // Display password
     computeAndShowPassword();
 }
 
@@ -160,33 +198,16 @@ void mpw_password_window::serviceSettingsChanged() {
         // in his config file. So we have to update the service, in order
         // to hold the config up to date.
 
-        Service &service = (Service &) user->getServices()->at(serviceName);
+        Service &storedService = (Service &) user->getServices()->at(serviceName);
+        Service selectedService = getSelectedService();
 
-        Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
-        Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
-        if (!siteTypeItr || !mpwVersionItr) {
-            goto show;
-        }
-
-        Gtk::TreeModel::Row siteTypeRow = *siteTypeItr;
-        Gtk::TreeModel::Row mpwVersionRow = *mpwVersionItr;
-        if (!siteTypeRow || !mpwVersionRow) {
-            goto show;
-        }
-
-        // Collect the needed data
-        MPSiteType type = (MPSiteType) siteTypeRow[simpleColumnsInstance.col_data];
-        MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simpleColumnsInstance.col_data];
-        uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
-
-        service.setType(type);
-        service.setAlgorithmVersion(version);
-        service.setCounter(counter);
+        storedService.setType(selectedService.getType());
+        storedService.setAlgorithmVersion(selectedService.getAlgorithmVersion());
+        storedService.setCounter(selectedService.getCounter());
 
         userManager->writeUserToConfig(*user);
     }
 
-    show:
     computeAndShowPassword();
 }
 
@@ -198,30 +219,11 @@ void mpw_password_window::computeAndShowPassword() {
     }
 
     if (user->isIncognito() || user->getServices()->find(serviceName) == user->getServices()->end()) {
-        // No Service found
-
-        Gtk::TreeModel::iterator siteTypeItr = passwordTypeSelect->get_active(); // Get pointer to active site type
-        Gtk::TreeModel::iterator mpwVersionItr = mpwVersionSelect->get_active(); // Get pointer to active version
-        if (!siteTypeItr || !mpwVersionItr) {
-            passwordOutput->set_text("");
-            return;
-        }
-
-        Gtk::TreeModel::Row siteTypeRow = *siteTypeItr;
-        Gtk::TreeModel::Row mpwVersionRow = *mpwVersionItr;
-        if (!siteTypeRow || !mpwVersionRow) {
-            passwordOutput->set_text("");
-            return;
-        }
-
-        // Collect the needed data
-        MPSiteType type = (MPSiteType) siteTypeRow[simpleColumnsInstance.col_data];
-        MPAlgorithmVersion version = (MPAlgorithmVersion) mpwVersionRow[simpleColumnsInstance.col_data];
-        uint32_t counter = (uint32_t) std::stoi(counterSpinButton->get_text());
-
-        // Set the output password
-        passwordOutput->set_text(user->passwordForService(serviceName, type, version, counter));
+        // No stored service found.
+        Service selectedService = getSelectedService();
+        passwordOutput->set_text(user->passwordForService(selectedService));
     } else {
+        // Show the stored service
         Service &service = (Service &) user->getServices()->at(serviceName);
         passwordOutput->set_text(user->passwordForService(service));
     }
@@ -242,3 +244,36 @@ void mpw_password_window::copyPassword() {
     // Revert the visibility to the old state
     updatePasswordVisibility();
 }
+
+void mpw_password_window::updateModifySiteButton() {
+    if (!user->isIncognito()) {
+        std::string serviceName = serviceEntry->get_text();
+
+        if (user->getServices()->find(serviceName) != user->getServices()->end()) {
+            modifySiteButton->set_label("Remove");
+        } else {
+            modifySiteButton->set_label("Add");
+        }
+    }
+}
+
+void mpw_password_window::modifySiteButtonClicked() {
+    if (!user->isIncognito()) {
+        std::string serviceName = serviceEntry->get_text();
+
+        if (user->getServices()->find(serviceName) != user->getServices()->end()) {
+            // Remove the service
+            user->removeService(serviceName);
+        } else {
+            // Add the service
+            Service service = getSelectedService();
+            user->addService(service);
+        }
+        userManager->writeUserToConfig(*user);
+
+        updateModifySiteButton();
+        updateAutoCompletion();
+    }
+}
+
+

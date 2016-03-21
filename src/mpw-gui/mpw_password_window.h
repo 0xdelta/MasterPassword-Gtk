@@ -22,12 +22,15 @@ private:
     Gtk::CheckButton *passwordVisibility;
     Gtk::ComboBox *passwordTypeSelect, *mpwVersionSelect;
     Gtk::SpinButton *counterSpinButton;
+    Gtk::Button *modifySiteButton;
 
 public:
     mpw_password_window(UserManager *userManager, User *_user);
     virtual ~mpw_password_window();
 
 private:
+    Service getSelectedService();
+    void updateAutoCompletion();
     void setServiceSettings(MPSiteType siteType, MPAlgorithmVersion algorithmVersion, int counter);
     void logout();
     void serviceNameChanged();
@@ -35,6 +38,8 @@ private:
     void computeAndShowPassword();
     void updatePasswordVisibility();
     void copyPassword();
+    void updateModifySiteButton();
+    void modifySiteButtonClicked();
 };
 
 #endif //MPW_GTK_MPW_PASSWORD_WINDOW_H

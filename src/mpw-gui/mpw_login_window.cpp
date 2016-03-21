@@ -105,8 +105,6 @@ void mpw_login_window::accountLogin() {
         return;
     }
 
-    userManager->writeUserToConfig(*user);
-
     userManager->setLastUser(userName);
     userManager->writeToConfig();
 
