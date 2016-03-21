@@ -1,9 +1,12 @@
 # MasterPassword-Gtk
 A Gtk (more specifically gtkmm) GUI implementation of the MasterPassword algorithm.
 
-This project is still in early development - so use it at your own risk.
-
 Parts of the code (more specifically /src/mpw-algorithm/) are taken from the original MasterPassword Github repository (https://github.com/Lyndir/MasterPassword). Some minor changes were made to provide compatibility to the rest of the code.
+
+## Project State
+Current version: 1.0 (Release)
+
+Note, that the master branch is now used as a kind of "stable" branch. Development takes place in a separate branch called dev.  
 
 ## Build
 CMake is required to build this project.
