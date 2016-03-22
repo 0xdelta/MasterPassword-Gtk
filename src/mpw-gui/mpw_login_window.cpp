@@ -12,6 +12,7 @@
 #include "mpw_login_window.h"
 #include "mpw_password_window.h"
 #include "simple_columns.h"
+#include "mpw_manage_accounts_window.h"
 
 mpw_login_window::mpw_login_window(UserManager *_userManager) :
         userManager(_userManager) {
@@ -20,6 +21,7 @@ mpw_login_window::mpw_login_window(UserManager *_userManager) :
     // Global widgets
     builder->get_widget("window", window);
     builder->get_widget("create-account", createAccountButton);
+    builder->get_widget("manage-accounts", manageAccountsButton);
     builder->get_widget("incognito-password-entry", incognitoPasswordEntry);
     builder->get_widget("account-password-entry", accountPasswordEntry);
     builder->get_widget("incognito-user-entry", incognitoUserEntry);
@@ -28,6 +30,7 @@ mpw_login_window::mpw_login_window(UserManager *_userManager) :
     builder->get_widget("account-login", accountLoginButton);
 
     createAccountButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::createAccount));
+    manageAccountsButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::manageAccounts));
 
     incognitoLoginButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_login_window::incognitoLogin));
     incognitoPasswordEntry->signal_activate().connect(sigc::mem_fun(this, &mpw_login_window::incognitoLogin));
@@ -161,4 +164,9 @@ void mpw_login_window::updateIncognitoLoginButton() {
 void mpw_login_window::createAccount() {
     mpw_create_account_window *createAccountWindow = new mpw_create_account_window{userManager};
     createAccountWindow->getWindow()->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::updateAvailableUsers));
+}
+
+void mpw_login_window::manageAccounts() {
+    mpw_manage_accounts_window *manageAccountsWindow = new mpw_manage_accounts_window{userManager};
+    manageAccountsWindow->getWindow()->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::updateAvailableUsers)); //TODO Create own signal
 }

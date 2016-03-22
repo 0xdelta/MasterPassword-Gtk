@@ -18,13 +18,14 @@ private:
     Gtk::Entry *incognitoPasswordEntry, *incognitoUserEntry,
             *accountPasswordEntry;
     Gtk::ComboBox *accountUserSelect;
-    Gtk::Button *createAccountButton, *incognitoLoginButton, *accountLoginButton;
+    Gtk::Button *manageAccountsButton, *createAccountButton, *incognitoLoginButton, *accountLoginButton;
 public:
     mpw_login_window(UserManager *userManager);
 
 private:
     void updateAvailableUsers();
     void createAccount();
+    void manageAccounts();
 
     void accountLogin();
     void updateAccountLoginButton();
