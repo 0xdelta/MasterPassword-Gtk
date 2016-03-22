@@ -238,3 +238,31 @@ bool UserManager::createUser(std::string &userName, std::string &masterPassword)
     setLastUser(userName);
     return true;
 }
+
+bool UserManager::deleteUser(std::string &userName) {
+    if (!existsUser(userName)) {
+        return false;
+    }
+
+    availableUsers.erase(userName);
+    if (lastUser == userName) {
+        setLastUser("");
+    }
+
+    std::cout << "User " << userName << " deleted" << std::endl;
+    return true;
+}
+
+bool UserManager::setUserFile(std::string &userName, std::string &file) {
+    if (!existsUser(userName)) {
+        return false;
+    }
+
+    availableUsers.at(userName) = file;
+    return true;
+}
+
+bool UserManager::importUser(std::string &file) {
+    // TODO
+    return true;
+}

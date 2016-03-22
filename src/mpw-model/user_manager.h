@@ -29,6 +29,9 @@ public:
     AccountUser *readUserFromConfig(std::string &userName);
     void writeUserToConfig(User &user);
     bool createUser(std::string &userName, std::string &masterPassword);
+    bool deleteUser(std::string &userName);
+    bool setUserFile(std::string &userName, std::string &file);
+    bool importUser(std::string &file);
 
     const std::unordered_map<std::string, std::string> &getAvailableUsers() const {
         return availableUsers;

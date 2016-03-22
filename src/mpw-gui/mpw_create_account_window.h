@@ -20,6 +20,7 @@ private:
 public:
     mpw_create_account_window(UserManager *userManager);
 
+private:
     void updatePasswordStrength();
     void updateCreateButton();
     void cancel();
