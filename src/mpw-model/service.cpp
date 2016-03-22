@@ -7,8 +7,8 @@
 #include "algorithm_version.h"
 
 Service::Service(std::string _name) :
-        name(_name), type(defaultPasswordType.getMpSiteType()),
-        algorithmVersion(defaultAlgorithmVersion.getMpAlgorithmVersion()), counter(1) { }
+        name(_name), type(defaultPasswordType.mpSiteType),
+        algorithmVersion(defaultAlgorithmVersion.mpAlgorithmVersion), counter(1) { }
 
 Service::Service(std::string _name, MPSiteType _siteType, MPAlgorithmVersion _algorithmVersion, int _counter) :
         name(_name), type(_siteType), algorithmVersion(_algorithmVersion),

@@ -1,5 +1,5 @@
 //
-// Created by lukas on 19.03.16.
+// Created by lukas on 22.03.16.
 //
 
 #ifndef MPW_GTK_ALGORITHM_VERSION_H
@@ -8,16 +8,9 @@
 #include <string>
 #include "mpw-algorithm.h"
 
-class AlgorithmVersion {
-private:
+struct AlgorithmVersion {
     std::string displayName;
     MPAlgorithmVersion mpAlgorithmVersion;
-
-public:
-    AlgorithmVersion(const std::string &displayName, MPAlgorithmVersion mpAlgorithmVersion);
-
-    const std::string &getDisplayName() const;
-    MPAlgorithmVersion getMpAlgorithmVersion() const;
 };
 
 static AlgorithmVersion algorithmVersions[] = {
@@ -26,6 +19,5 @@ static AlgorithmVersion algorithmVersions[] = {
         {"V3", MPAlgorithmVersion3},
 };
 static AlgorithmVersion defaultAlgorithmVersion = algorithmVersions[2]; // V3
-
 
 #endif //MPW_GTK_ALGORITHM_VERSION_H

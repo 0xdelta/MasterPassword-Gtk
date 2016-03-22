@@ -11,7 +11,6 @@
 #include <gtkmm/messagedialog.h>
 #include "mpw_password_window.h"
 #include "simple_columns.h"
-
 #include "password_type.h"
 #include "algorithm_version.h"
 
@@ -62,9 +61,9 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     // Fill the password types model
     for (auto &type : passwordTypes) {
         row = *(passwordTypesModel->append());
-        simpleColumnsInstance.apply(row, {type.getName(), (int) type.getMpSiteType()});
+        simpleColumnsInstance.apply(row, {type.name, (int) type.mpSiteType});
 
-        if (type.getMpSiteType() == defaultPasswordType.getMpSiteType()) {
+        if (type.mpSiteType == defaultPasswordType.mpSiteType) {
             passwordTypeSelect->set_active(row);
         }
     }
@@ -72,9 +71,9 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     //Fill the ComboBox's Tree Model:
     for (auto &version : algorithmVersions) {
         row = *(mpwVersionsModel->append());
-        simpleColumnsInstance.apply(row, {version.getDisplayName(), (int) version.getMpAlgorithmVersion()});
+        simpleColumnsInstance.apply(row, {version.displayName, (int) version.mpAlgorithmVersion});
 
-        if (version.getMpAlgorithmVersion() == defaultAlgorithmVersion.getMpAlgorithmVersion()) {
+        if (version.mpAlgorithmVersion == defaultAlgorithmVersion.mpAlgorithmVersion) {
             mpwVersionSelect->set_active(row);
         }
     }
@@ -181,7 +180,7 @@ void mpw_password_window::serviceNameChanged() {
         setServiceSettings(service.getType(), service.getAlgorithmVersion(), service.getCounter());
     } else {
         // Display defaults
-        setServiceSettings(defaultPasswordType.getMpSiteType(), defaultAlgorithmVersion.getMpAlgorithmVersion(), 1);
+        setServiceSettings(defaultPasswordType.mpSiteType, defaultAlgorithmVersion.mpAlgorithmVersion, 1);
     }
     // Show correct button (Remove service/Add service)
     updateModifySiteButton();

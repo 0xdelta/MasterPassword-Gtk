@@ -1,23 +1,17 @@
 //
-// Created by lukas on 19.03.16.
+// Created by lukas on 22.03.16.
 //
 
-#ifndef MPW_GTK_PASSWORD_TYPE_H
-#define MPW_GTK_PASSWORD_TYPE_H
+#ifndef MPW_GTK_DATA_H
+#define MPW_GTK_DATA_H
 
-#include "mpw-types.h"
 #include <string>
+#include "mpw-types.h"
+#include "mpw-algorithm.h"
 
-class PasswordType {
-private:
+struct PasswordType {
     std::string name;
-    MPSiteType mpSiteType;
-
-public:
-    PasswordType(const std::string &name, MPSiteType mpSiteType);
-
-    const std::string &getName() const;
-    MPSiteType getMpSiteType() const;
+    MPSiteType  mpSiteType;
 };
 
 static PasswordType passwordTypes[] = {
@@ -32,4 +26,4 @@ static PasswordType passwordTypes[] = {
 };
 static PasswordType defaultPasswordType = passwordTypes[1]; // Long
 
-#endif //MPW_GTK_PASSWORD_TYPE_H
+#endif //MPW_GTK_DATA_H
