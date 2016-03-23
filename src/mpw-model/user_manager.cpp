@@ -33,14 +33,14 @@ std::string UserManager::getUserConfigFileName(std::string &userName) {
     }
 }
 
-void UserManager::readFromConfig() {
+bool UserManager::readFromConfig() {
     using namespace libconfig;
     FILE *configFile = fopen(getConfigFileName().c_str(), "r");
 
     if (!configFile) {
         // No config file found. We can ignore this case, as a
         // new file will be created when writeToConfig is called.
-        return;
+        return true;
     }
 
     Config config;
@@ -51,7 +51,7 @@ void UserManager::readFromConfig() {
     } catch (ParseException &e) {
         std::cerr << "Could not read main config: " << e.what() << "(" << e.getError() << ")" << std::endl;
         fclose(configFile);
-        return;
+        return false;
     }
 
     int configVersion;
@@ -59,7 +59,7 @@ void UserManager::readFromConfig() {
         configVersion = config.lookup("configVersion");
     } catch (SettingNotFoundException &e) {
         std::cerr << "Could not read main config version: " << e.what() << std::endl;
-        return;
+        return false;
     }
 
     try {
@@ -81,12 +81,14 @@ void UserManager::readFromConfig() {
             }
 
             std::cout << "Success reading main config." << std::endl;
+            return true;
         } else {
             std::cerr << "Unknown main config version: " << configVersion << std::endl;
         }
     } catch (SettingNotFoundException &e) {
         std::cerr << "Could not read main config: " << e.what() << " (" << e.getPath() << ")" << std::endl;
     }
+    return false;
 }
 
 void UserManager::writeToConfig() {
@@ -122,12 +124,12 @@ bool UserManager::existsUser(std::string &userName) {
     return availableUsers.find(userName) != availableUsers.end();
 }
 
-AccountUser *UserManager::readUserFromConfig(std::string &userName) {
+AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
     using namespace libconfig;
-    FILE *configFile = fopen(getUserConfigFileName(userName).c_str(), "r");
+    FILE *configFile = fopen(fileName.c_str(), "r");
 
     if (!configFile) {
-        std::cerr << "User config file does not exist: " << getUserConfigFileName(userName) << std::endl;
+        std::cerr << "User config file does not exist: " << fileName << std::endl;
         return NULL;
     }
 
@@ -152,6 +154,7 @@ AccountUser *UserManager::readUserFromConfig(std::string &userName) {
 
     try {
         if (configVersion == 1) {
+            std::string userName = config.lookup("userName");
             std::string keyIdString = config.lookup("keyId");
             const uint8_t *masterKeyId = mpw_hex_reverse(keyIdString.c_str(), keyIdString.size());
             MPAlgorithmVersion masterKeyAlgorithmVersion = (MPAlgorithmVersion) ((int) config.lookup("algorithmVersion"));
@@ -188,11 +191,22 @@ AccountUser *UserManager::readUserFromConfig(std::string &userName) {
     return NULL;
 }
 
+AccountUser *UserManager::readUserFromConfig(std::string &userName) {
+    if (!existsUser(userName)) {
+        std::cerr << "User " + userName + " not registered" << std::endl;
+        return NULL;
+    }
+
+    std::string fileName = getUserConfigFileName(userName);
+    return readUserFromConfigDirect(fileName);
+}
+
 void UserManager::writeUserToConfig(User &user) {
     using namespace libconfig;
 
     // Create a config object and insert the values
     Config config;
+    config.getRoot().add("userName", Setting::Type::TypeString) = user.getUserName();
     config.getRoot().add("configVersion", Setting::Type::TypeInt) = 1;
     config.getRoot().add("keyId", Setting::Type::TypeString) = user.getMasterKeyId() ? mpw_hex(user.getMasterKeyId(), 32) : "";
     config.getRoot().add("algorithmVersion", Setting::Type::TypeInt) = (int) user.getAlgorithmVersion();
@@ -228,6 +242,7 @@ void UserManager::writeUserToConfig(User &user) {
 
 bool UserManager::createUser(std::string &userName, std::string &masterPassword) {
     if (existsUser(userName)) {
+        std::cerr << "A user with the name " << userName << " already exists." << std::endl;
         return false;
     }
 
@@ -262,7 +277,16 @@ bool UserManager::setUserFile(std::string &userName, std::string &file) {
     return true;
 }
 
-bool UserManager::importUser(std::string &file) {
-    // TODO
-    return true;
+bool UserManager::importUser(std::string &fileName) {
+    AccountUser *user = readUserFromConfigDirect(fileName);
+
+    if(user) {
+        availableUsers.emplace(user->getUserName(), fileName);
+        setLastUser(user->getUserName());
+
+        delete user;
+        return true;
+    }
+
+    return false;
 }

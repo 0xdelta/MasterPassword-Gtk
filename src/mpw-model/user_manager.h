@@ -22,16 +22,17 @@ public:
     std::string getConfigFileName();
     std::string getUserConfigFileName(std::string &userName);
 
-    void readFromConfig();
+    bool readFromConfig();
     void writeToConfig();
 
     bool existsUser(std::string &userName);
+    AccountUser *readUserFromConfigDirect(std::string &fileName);
     AccountUser *readUserFromConfig(std::string &userName);
     void writeUserToConfig(User &user);
     bool createUser(std::string &userName, std::string &masterPassword);
     bool deleteUser(std::string &userName);
     bool setUserFile(std::string &userName, std::string &file);
-    bool importUser(std::string &file);
+    bool importUser(std::string &fileName);
 
     const std::unordered_map<std::string, std::string> &getAvailableUsers() const {
         return availableUsers;

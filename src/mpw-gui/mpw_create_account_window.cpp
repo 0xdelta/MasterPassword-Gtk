@@ -76,7 +76,7 @@ void mpw_create_account_window::create() {
 
     if (!userManager->createUser(userName, password)) {
         Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
-        dialog.set_secondary_text("Could not create a user with the name \"" + userName + "\".");
+        dialog.set_secondary_text("Could not create a user with the name \"" + userName + "\".\n\nSee log for details");
         dialog.run();
         return;
     }

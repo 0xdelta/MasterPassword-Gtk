@@ -97,6 +97,13 @@ void mpw_login_window::accountLogin() {
 
     AccountUser *user = userManager->readUserFromConfig(userName);
 
+    if (!user) {
+        Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
+        dialog.set_secondary_text("Could not read user \"" + userName + "\" from config.\n\nSee log for details.");
+        dialog.run();
+        return;
+    }
+
     if (!user->unlockMasterKey(masterPassword)) {
         accountPasswordEntry->set_text("");
 
@@ -116,8 +123,6 @@ void mpw_login_window::accountLogin() {
 
     // Add the password window to the gtk application
     window->get_application()->add_window(*passwordWindow->getWindow());
-
-    std::cout << "debug delete 1" << std::endl;
 
     // Hide and delete this window
     window->hide();
@@ -148,8 +153,6 @@ void mpw_login_window::incognitoLogin() {
 
     // Add the password window to the gtk application
     window->get_application()->add_window(*passwordWindow->getWindow());
-
-    std::cout << "debug delete 2" << std::endl;
 
     // Hide and delete this window
     window->hide();

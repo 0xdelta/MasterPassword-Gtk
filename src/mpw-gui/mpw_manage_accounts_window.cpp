@@ -9,6 +9,7 @@
 #include <gtkmm/dialog.h>
 #include <gtkmm/filechooserdialog.h>
 #include <iostream>
+#include <gtkmm/messagedialog.h>
 
 mpw_manage_accounts_window::mpw_manage_accounts_window(UserManager *_userManager) :
         userManager(_userManager) {
@@ -117,18 +118,21 @@ void mpw_manage_accounts_window::finish() {
 
 void mpw_manage_accounts_window::import() {
     // Open a file chooser
-    Gtk::FileChooserDialog dialog("Please choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
-    dialog.set_transient_for(*window);
-    dialog.set_current_folder(getenv("HOME"));
+    Gtk::FileChooserDialog fileChooser("Please choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
+    fileChooser.set_transient_for(*window);
+    fileChooser.set_current_folder(getenv("HOME"));
 
-    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
-    dialog.add_button("Select", Gtk::RESPONSE_OK);
+    fileChooser.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    fileChooser.add_button("Select", Gtk::RESPONSE_OK);
 
-    int result = dialog.run();
+    int result = fileChooser.run();
     if (result == Gtk::RESPONSE_OK) {
-        std::string fileName = dialog.get_filename();
-
-        // TODO
+        std::string fileName = fileChooser.get_filename();
+        if (!userManager->importUser(fileName)) {
+            Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
+            dialog.set_secondary_text("Could not import " + fileName + ".\n\nSee log for details.");
+            dialog.run();
+        }
 
         updateAccountsTreeView();
     }
