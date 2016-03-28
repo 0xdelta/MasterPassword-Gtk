@@ -1,5 +1,5 @@
 # MasterPassword-Gtk
-A Gtk (more specifically gtkmm) GUI implementation of the MasterPassword algorithm.
+A Gtk (more specifically gtkmm) GUI implementation of the MasterPassword algorithm. Note that this project does not aim to replace the existing implementations, as this was more a test project for myself to play with C++/Gtk+/gtkmm. 
 
 Parts of the code (more specifically /src/mpw-algorithm/) are taken from the original MasterPassword Github repository (https://github.com/Lyndir/MasterPassword). Some minor changes were made to provide compatibility to the rest of the code.
 
