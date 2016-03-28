@@ -9,6 +9,9 @@
 #include <user_manager.h>
 #include "mpw_window.h"
 
+/**
+ * Within this window, the user can import, edit and delete users.
+ */
 class mpw_manage_accounts_window : public mpw_window {
 private:
     class AccountsColumns : public Gtk::TreeModel::ColumnRecord {
@@ -35,19 +38,40 @@ private:
     Gtk::TreeView *accountsTreeView;
     Gtk::Button *importButton, *finishButton;
 
+    // The popup menu that is shown, when a user right-clicks
+    // a user in the tree view
     Gtk::Menu popupMenu;
 
 public:
     mpw_manage_accounts_window(UserManager *userManager);
 
 private:
+    /**
+     * Update the users shown in the tree view.
+     */
     void updateAccountsTreeView();
+    /**
+     * Called when a button is clicked within the
+     * tree view.
+     */
     void onButtonPress(GdkEventButton* event);
 
+    /**
+     * Called when edit is clicked.
+     */
     void editUser();
+    /**
+     * Called when delete is clicked.
+     */
     void deleteUser();
 
+    /**
+     * Called when the import button is clicked.
+     */
     void import();
+    /**
+     * Called when the finish button is clicked.
+     */
     void finish();
 };
 

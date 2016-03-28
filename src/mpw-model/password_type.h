@@ -9,6 +9,11 @@
 #include "mpw-types.h"
 #include "mpw-algorithm.h"
 
+/**
+ * This headers holds everything that has to do with
+ * the different password types.
+ */
+
 struct PasswordType {
     std::string name;
     MPSiteType  mpSiteType;

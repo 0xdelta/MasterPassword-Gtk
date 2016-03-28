@@ -11,6 +11,9 @@
 #include <user_manager.h>
 #include "mpw_window.h"
 
+/**
+ * Within this window, the user can create a new account.
+ */
 class mpw_create_account_window : public mpw_window {
 private:
     UserManager *userManager;
@@ -21,9 +24,22 @@ public:
     mpw_create_account_window(UserManager *userManager);
 
 private:
+    /**
+     * Updates the progress bar, that helps to determine,
+     * who strong the password is.
+     */
     void updatePasswordStrength();
+    /**
+     * Update the sensitivity of the create button.
+     */
     void updateCreateButton();
+    /**
+     * Cancel button clicked.
+     */
     void cancel();
+    /**
+     * Create button clicked.
+     */
     void create();
 };
 

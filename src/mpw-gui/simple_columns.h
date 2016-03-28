@@ -9,6 +9,10 @@
 #include <glibmm/ustring.h>
 #include <gtkmm/treemodelcolumn.h>
 
+/**
+ * A little helper header that provides a simple ColumnRecord
+ * for Gtk.
+ */
 
 struct SimpleRowData {
     Glib::ustring name;

@@ -8,6 +8,10 @@
 
 #include <gtkmm/window.h>
 
+/**
+ * The base class of any window. This class just holds
+ * a Gtk Window, that will be deleted in the dtor.
+ */
 class mpw_window {
 protected:
     Gtk::Window *window;

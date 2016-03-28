@@ -7,6 +7,10 @@
 
 #include "user.h"
 
+/**
+ * This class represents an incognito user, that uses a temporary
+ * account without the ability, to store sites or the master password.
+ */
 class IncognitoUser : public User {
 public:
     IncognitoUser(std::string userName);

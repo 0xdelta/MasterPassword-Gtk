@@ -8,6 +8,11 @@
 #include <string>
 #include "mpw-algorithm.h"
 
+/**
+ * This header holds everything that has to do with
+ * the different algorithm versions.
+ */
+
 struct AlgorithmVersion {
     std::string displayName;
     MPAlgorithmVersion mpAlgorithmVersion;
