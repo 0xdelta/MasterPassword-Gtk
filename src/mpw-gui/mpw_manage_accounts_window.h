@@ -6,13 +6,15 @@
 #define MPW_GTK_MPW_MANAGE_ACCOUNTS_WINDOW_H
 
 #include <gtkmm/treeview.h>
-#include <user_manager.h>
-#include "mpw_window.h"
+#include <gtkmm/builder.h>
+#include <gtkmm/window.h>
+
+#include "user_manager.h"
 
 /**
  * Within this window, the user can import, edit and delete users.
  */
-class mpw_manage_accounts_window : public mpw_window {
+class mpw_manage_accounts_window : public Gtk::Window {
 private:
     class AccountsColumns : public Gtk::TreeModel::ColumnRecord {
     public:
@@ -29,7 +31,8 @@ private:
             row.set_value(col_file, file);
         }
     };
-
+public:
+    static mpw_manage_accounts_window *create(UserManager *userManager);
 
 private:
     UserManager *userManager;
@@ -43,9 +46,15 @@ private:
     Gtk::Menu popupMenu;
 
 public:
-    mpw_manage_accounts_window(UserManager *userManager);
+    mpw_manage_accounts_window(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
 
 private:
+    /**
+     * Called after the object is instantiated. The method is used
+     * to pass the user manager to this object.
+     */
+    void postInit(UserManager *userManager);
+
     /**
      * Update the users shown in the tree view.
      */

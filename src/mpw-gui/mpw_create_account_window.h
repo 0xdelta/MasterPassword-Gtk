@@ -8,20 +8,25 @@
 #include <gtkmm/entry.h>
 #include <gtkmm/progressbar.h>
 #include <gtkmm/button.h>
-#include <user_manager.h>
-#include "mpw_window.h"
+#include <gtkmm/window.h>
+#include <gtkmm/builder.h>
+
+#include "user_manager.h"
 
 /**
  * Within this window, the user can create a new account.
  */
-class mpw_create_account_window : public mpw_window {
+class mpw_create_account_window : public Gtk::Window {
+public:
+    static mpw_create_account_window *create(UserManager *userManager);
+
 private:
     UserManager *userManager;
     Gtk::ProgressBar *passwordStrength;
     Gtk::Entry *userEntry, *passwordEntry, *repeatPasswordEntry;
     Gtk::Button *cancelButton,*createButton;
 public:
-    mpw_create_account_window(UserManager *userManager);
+    mpw_create_account_window(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
 
 private:
     /**
@@ -36,11 +41,11 @@ private:
     /**
      * Cancel button clicked.
      */
-    void cancel();
+    void cancelButtonClicked();
     /**
      * Create button clicked.
      */
-    void create();
+    void createButtonClicked();
 };
 
 

@@ -11,13 +11,15 @@
 #include <gtkmm/combobox.h>
 #include <gtkmm/checkbutton.h>
 #include "user.h"
-#include "mpw_window.h"
 
 /**
  * This is the window, that is shown, after the user entered
  * his credentials in the login window.
  */
-class mpw_password_window : public mpw_window {
+class mpw_password_window : public Gtk::Window {
+public:
+    static mpw_password_window *create(UserManager *userManager, User *user);
+
 private:
     UserManager *userManager;
     User *user;
@@ -29,10 +31,17 @@ private:
     Gtk::Button *modifySiteButton;
 
 public:
-    mpw_password_window(UserManager *userManager, User *_user);
+    mpw_password_window(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
     virtual ~mpw_password_window();
 
 private:
+    /**
+     * Called after the object is instantiated. The method
+     * is used to pass the user manager and the user object to
+     * this object.
+     */
+    void postInit(UserManager *userManager, User *user);
+
     /**
      * Create an new Service instance that represents
      * the current input values.

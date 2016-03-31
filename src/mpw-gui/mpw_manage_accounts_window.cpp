@@ -4,19 +4,23 @@
 
 #include "mpw_manage_accounts_window.h"
 
-#include <gtkmm/builder.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/filechooserdialog.h>
 #include <iostream>
 #include <gtkmm/messagedialog.h>
 
-mpw_manage_accounts_window::mpw_manage_accounts_window(UserManager *_userManager) :
-        userManager(_userManager) {
-    auto builder = Gtk::Builder::create_from_file("ui/manage-accounts.ui");
+mpw_manage_accounts_window *mpw_manage_accounts_window::create(UserManager *userManager) {
+    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("ui/manage-accounts.ui");
+    mpw_manage_accounts_window *window = nullptr;
+    builder->get_widget_derived("window", window);
+    window->postInit(userManager);
+    return window;
+}
 
+mpw_manage_accounts_window::mpw_manage_accounts_window(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder) :
+       Gtk::Window(cobject) {
     // Widgets
-    builder->get_widget("window", window);
     builder->get_widget("accounts-tree-view", accountsTreeView);
     builder->get_widget("import", importButton);
     builder->get_widget("finish", finishButton);
@@ -27,7 +31,7 @@ mpw_manage_accounts_window::mpw_manage_accounts_window(UserManager *_userManager
     finishButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_manage_accounts_window::finish));
 
     // Configure popup menu
-    popupMenu.accelerate(*window);
+    popupMenu.accelerate(*this);
     auto item = Gtk::manage(new Gtk::MenuItem("Edit", true));
     item->signal_activate().connect(sigc::mem_fun(*this, &mpw_manage_accounts_window::editUser));
     popupMenu.append(*item);
@@ -40,6 +44,10 @@ mpw_manage_accounts_window::mpw_manage_accounts_window(UserManager *_userManager
     // Configure the tree view
     accountsTreeView->append_column("Name", accountsColumns.col_name);
     accountsTreeView->append_column("File", accountsColumns.col_file);
+}
+
+void mpw_manage_accounts_window::postInit(UserManager *_userManager) {
+    userManager = _userManager;
 
     updateAccountsTreeView();
 }
@@ -79,7 +87,7 @@ void mpw_manage_accounts_window::editUser() {
 
     // Open a file chooser
     Gtk::FileChooserDialog dialog("Please choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
-    dialog.set_transient_for(*window);
+    dialog.set_transient_for(*this);
     dialog.set_current_folder(getenv("HOME"));
 
     dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
@@ -112,14 +120,14 @@ void mpw_manage_accounts_window::deleteUser() {
 void mpw_manage_accounts_window::finish() {
     userManager->writeToConfig();
 
-    window->hide();
+    hide();
     delete this;
 }
 
 void mpw_manage_accounts_window::import() {
     // Open a file chooser
     Gtk::FileChooserDialog fileChooser("Please choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
-    fileChooser.set_transient_for(*window);
+    fileChooser.set_transient_for(*this);
     fileChooser.set_current_folder(getenv("HOME"));
 
     fileChooser.add_button("Cancel", Gtk::RESPONSE_CANCEL);
@@ -129,7 +137,7 @@ void mpw_manage_accounts_window::import() {
     if (result == Gtk::RESPONSE_OK) {
         std::string fileName = fileChooser.get_filename();
         if (!userManager->importUser(fileName)) {
-            Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
+            Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
             dialog.set_secondary_text("Could not import " + fileName + ".\n\nSee log for details.");
             dialog.run();
         }

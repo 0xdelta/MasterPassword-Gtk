@@ -4,7 +4,6 @@
 
 #include "mpw_login_window.h"
 
-#include <gtkmm/builder.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/listviewtext.h>
 #include <iostream>
@@ -14,14 +13,19 @@
 #include "password_type.h"
 #include "algorithm_version.h"
 
-mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) :
-        userManager(_userManager), user(_usr) {
-    auto builder = Gtk::Builder::create_from_file("ui/password.ui");
+mpw_password_window *mpw_password_window::create(UserManager *userManager, User *user) {
+    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("ui/password.ui");
+    mpw_password_window *window = nullptr;
+    builder->get_widget_derived("window", window);
+    window->postInit(userManager, user);
+    return window;
+}
 
+mpw_password_window::mpw_password_window(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder) :
+        Gtk::Window(cobject) {
     Gtk::Button *logoutButton, *copyButton;
 
     // Widgets
-    builder->get_widget("window", window);
     builder->get_widget("service-entry", serviceEntry);
     builder->get_widget("password-output", passwordOutput);
     builder->get_widget("password-visibility", passwordVisibility);
@@ -42,6 +46,15 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     modifySiteButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::modifySiteButtonClicked));
     logoutButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::logout));
     copyButton->signal_clicked().connect(sigc::mem_fun(this, &mpw_password_window::copyPassword));
+}
+
+mpw_password_window::~mpw_password_window() {
+    delete user;
+}
+
+void mpw_password_window::postInit(UserManager *_userManager, User *_user) {
+    userManager = _userManager;
+    user = _user;
 
     // Create the models for ComboBoxes
     Glib::RefPtr<Gtk::ListStore> passwordTypesModel = Gtk::ListStore::create(simpleColumnsInstance);
@@ -84,10 +97,6 @@ mpw_password_window::mpw_password_window(UserManager *_userManager, User *_usr) 
     } else {
         updateAutoCompletion();
     }
-}
-
-mpw_password_window::~mpw_password_window() {
-    delete user;
 }
 
 Service mpw_password_window::getSelectedService() {
@@ -137,7 +146,7 @@ void mpw_password_window::setServiceSettings(MPSiteType siteType, MPAlgorithmVer
     Gtk::TreeModel::Children types = passwordTypeSelect->get_model()->children();
     for (Gtk::TreeModel::Children::iterator iter = types.begin(); iter != types.end(); ++iter) {
         Gtk::TreeModel::Row row = *iter;
-        if (row.get_value(simpleColumnsInstance.col_data) == siteType) {
+        if (row.get_value(simpleColumnsInstance.col_data) == (int) siteType) {
             passwordTypeSelect->set_active(row);
             break;
         }
@@ -147,7 +156,7 @@ void mpw_password_window::setServiceSettings(MPSiteType siteType, MPAlgorithmVer
     Gtk::TreeModel::Children versions = mpwVersionSelect->get_model()->children();
     for (Gtk::TreeModel::Children::iterator iter = versions.begin(); iter != versions.end(); ++iter) {
         Gtk::TreeModel::Row row = *iter;
-        if (row.get_value(simpleColumnsInstance.col_data) == algorithmVersion) {
+        if (row.get_value(simpleColumnsInstance.col_data) == (int) algorithmVersion) {
             mpwVersionSelect->set_active(row);
             break;
         }
@@ -160,13 +169,13 @@ void mpw_password_window::setServiceSettings(MPSiteType siteType, MPAlgorithmVer
 
 void mpw_password_window::logout() {
     // Create the login window
-    mpw_login_window *loginWindow = new mpw_login_window{userManager};
+    mpw_login_window *loginWindow = mpw_login_window::create(userManager);
 
     // Add the password window to the gtk application
-    window->get_application()->add_window(*loginWindow->getWindow());
+    get_application()->add_window(*loginWindow);
 
     // Hide and delete this window
-    window->hide();
+    hide();
     delete this;
 }
 
@@ -274,5 +283,3 @@ void mpw_password_window::modifySiteButtonClicked() {
         updateAutoCompletion();
     }
 }
-
-

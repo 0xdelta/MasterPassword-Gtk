@@ -8,14 +8,18 @@
 #include <gtkmm/entry.h>
 #include <gtkmm/window.h>
 #include <gtkmm/button.h>
-#include <user_manager.h>
 #include <gtkmm/combobox.h>
-#include "mpw_window.h"
+#include <gtkmm/builder.h>
+
+#include "user_manager.h"
 
 /**
  * The login window is the entry point of the application.
  */
-class mpw_login_window : public mpw_window {
+class mpw_login_window : public Gtk::Window {
+public:
+    static mpw_login_window *create(UserManager *userManager);
+
 private:
     UserManager *userManager;
     Gtk::Entry *incognitoPasswordEntry, *incognitoUserEntry,
@@ -23,9 +27,15 @@ private:
     Gtk::ComboBox *accountUserSelect;
     Gtk::Button *manageAccountsButton, *createAccountButton, *incognitoLoginButton, *accountLoginButton;
 public:
-    mpw_login_window(UserManager *userManager);
+    mpw_login_window(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
 
 private:
+    /**
+     * Called after the object is instantiated. This function
+     * is used to pass the user manager to the login window.
+     */
+    void postInit(UserManager *userManager);
+
     /**
      * Updates the combobox that shows all registered users
      * from the user manager.

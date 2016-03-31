@@ -4,22 +4,31 @@
 
 #include "mpw_create_account_window.h"
 
-#include <gtkmm/builder.h>
-#include <gtkmm/messagedialog.h>
 #include <iostream>
-#include <incognito_user.h>
+#include <gtkmm/messagedialog.h>
 #include <gtkmm/liststore.h>
+
 #include "mpw_login_window.h"
+#include "incognito_user.h"
 #include "mpw_password_window.h"
 #include "simple_columns.h"
 #include "mpw_manage_accounts_window.h"
 
-mpw_login_window::mpw_login_window(UserManager *_userManager) :
-        userManager(_userManager) {
-    auto builder = Gtk::Builder::create_from_file("ui/login.ui");
+mpw_login_window *mpw_login_window::create(UserManager *userManager) {
+    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("ui/login.ui");
+    mpw_login_window *window = nullptr;
+    builder->get_widget_derived("window", window);
+    window->postInit(userManager);
+    return window;
+}
+
+mpw_login_window::mpw_login_window(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder) :
+        Gtk::Window(cobject) {
+    // User Manager
+    userManager = new UserManager;
+    userManager->readFromConfig();
 
     // Global widgets
-    builder->get_widget("window", window);
     builder->get_widget("create-account", createAccountButton);
     builder->get_widget("manage-accounts", manageAccountsButton);
     builder->get_widget("incognito-password-entry", incognitoPasswordEntry);
@@ -44,6 +53,11 @@ mpw_login_window::mpw_login_window(UserManager *_userManager) :
     accountUserSelect->signal_changed().connect(sigc::mem_fun(this, &mpw_login_window::updateAccountLoginButton));
 
     accountUserSelect->pack_start(simpleColumnsInstance.col_name);
+}
+
+void mpw_login_window::postInit(UserManager *_userManager) {
+    userManager = _userManager;
+
     updateAvailableUsers();
 }
 
@@ -88,7 +102,7 @@ void mpw_login_window::accountLogin() {
     if (!userManager->existsUser(userName)) {
         accountPasswordEntry->set_text("");
 
-        Gtk::MessageDialog dialog(*window, "Authentication failure", false, Gtk::MESSAGE_INFO);
+        Gtk::MessageDialog dialog(*this, "Authentication failure", false, Gtk::MESSAGE_INFO);
         dialog.set_secondary_text("No account found for \"" + userName + "\". Please create an account using the \"Create Account\" button.");
         dialog.run();
 
@@ -98,7 +112,7 @@ void mpw_login_window::accountLogin() {
     AccountUser *user = userManager->readUserFromConfig(userName);
 
     if (!user) {
-        Gtk::MessageDialog dialog(*window, "Error", false, Gtk::MESSAGE_ERROR);
+        Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
         dialog.set_secondary_text("Could not read user \"" + userName + "\" from config.\n\nSee log for details.");
         dialog.run();
         return;
@@ -107,7 +121,7 @@ void mpw_login_window::accountLogin() {
     if (!user->unlockMasterKey(masterPassword)) {
         accountPasswordEntry->set_text("");
 
-        Gtk::MessageDialog dialog(*window, "Authentication failure", false, Gtk::MESSAGE_ERROR);
+        Gtk::MessageDialog dialog(*this, "Authentication failure", false, Gtk::MESSAGE_ERROR);
         dialog.set_secondary_text("Incorrect master password for \"" + userName + "\"");
         dialog.run();
 
@@ -119,13 +133,13 @@ void mpw_login_window::accountLogin() {
     userManager->writeToConfig();
 
     // Create the window
-    mpw_password_window *passwordWindow = new mpw_password_window{userManager, user};
+    mpw_password_window *passwordWindow = mpw_password_window::create(userManager, user);
 
     // Add the password window to the gtk application
-    window->get_application()->add_window(*passwordWindow->getWindow());
+    get_application()->add_window(*passwordWindow);
 
     // Hide and delete this window
-    window->hide();
+    hide();
     delete this;
 }
 
@@ -149,13 +163,13 @@ void mpw_login_window::incognitoLogin() {
     user->unlockMasterKey(masterPassword);
 
     // Create the window
-    mpw_password_window *passwordWindow = new mpw_password_window{userManager, user};
+    mpw_password_window *passwordWindow = mpw_password_window::create(userManager, user);
 
     // Add the password window to the gtk application
-    window->get_application()->add_window(*passwordWindow->getWindow());
+    get_application()->add_window(*passwordWindow);
 
     // Hide and delete this window
-    window->hide();
+    hide();
     delete this;
 }
 
@@ -165,11 +179,11 @@ void mpw_login_window::updateIncognitoLoginButton() {
 }
 
 void mpw_login_window::createAccount() {
-    mpw_create_account_window *createAccountWindow = new mpw_create_account_window{userManager};
-    createAccountWindow->getWindow()->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::updateAvailableUsers));
+    mpw_create_account_window *createAccountWindow = mpw_create_account_window::create(userManager);
+    createAccountWindow->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::updateAvailableUsers));
 }
 
 void mpw_login_window::manageAccounts() {
-    mpw_manage_accounts_window *manageAccountsWindow = new mpw_manage_accounts_window{userManager};
-    manageAccountsWindow->getWindow()->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::updateAvailableUsers)); //TODO Create own signal
+    mpw_manage_accounts_window *manageAccountsWindow = mpw_manage_accounts_window::create(userManager);
+    manageAccountsWindow->signal_hide().connect(sigc::mem_fun(this, &mpw_login_window::updateAvailableUsers)); //TODO Create own signal
 }
