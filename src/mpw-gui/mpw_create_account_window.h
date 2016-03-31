@@ -31,7 +31,7 @@ public:
 private:
     /**
      * Updates the progress bar, that helps to determine,
-     * who strong the password is.
+     * how strong the password is.
      */
     void updatePasswordStrength();
     /**
