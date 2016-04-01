@@ -7,8 +7,8 @@
 #include <gtkmm/liststore.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/filechooserdialog.h>
-#include <iostream>
 #include <gtkmm/messagedialog.h>
+#include <iostream>
 
 mpw_manage_accounts_window *mpw_manage_accounts_window::create(UserManager *userManager) {
     Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("ui/manage-accounts.ui");
@@ -18,8 +18,8 @@ mpw_manage_accounts_window *mpw_manage_accounts_window::create(UserManager *user
     return window;
 }
 
-mpw_manage_accounts_window::mpw_manage_accounts_window(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder) :
-       Gtk::Window(cobject) {
+mpw_manage_accounts_window::mpw_manage_accounts_window(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder) :
+        mpw_window(cobject, builder) {
     // Widgets
     builder->get_widget("accounts-tree-view", accountsTreeView);
     builder->get_widget("import", importButton);
@@ -120,7 +120,6 @@ void mpw_manage_accounts_window::deleteUser() {
 void mpw_manage_accounts_window::finish() {
     userManager->writeToConfig();
 
-    hide();
     delete this;
 }
 

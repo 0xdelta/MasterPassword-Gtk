@@ -15,7 +15,7 @@ mpw_create_account_window *mpw_create_account_window::create(UserManager *userMa
 }
 
 mpw_create_account_window::mpw_create_account_window(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder) :
-        Gtk::Window(cobject) {
+        mpw_window(cobject, builder) {
     // Widgets
     builder->get_widget("password-strength", passwordStrength);
     builder->get_widget("user-entry", userEntry);
@@ -47,7 +47,6 @@ void mpw_create_account_window::updateCreateButton() {
 }
 
 void mpw_create_account_window::cancelButtonClicked() {
-    hide();
     delete this;
 }
 
@@ -90,6 +89,5 @@ void mpw_create_account_window::createButtonClicked() {
     dialog.set_secondary_text("Account created! You can now login using your username and password.");
     dialog.run();
 
-    hide();
     delete this;
 }

@@ -9,12 +9,13 @@
 #include <gtkmm/builder.h>
 #include <gtkmm/window.h>
 
+#include "mpw_window.h"
 #include "user_manager.h"
 
 /**
  * Within this window, the user can import, edit and delete users.
  */
-class mpw_manage_accounts_window : public Gtk::Window {
+class mpw_manage_accounts_window : public mpw_window {
 private:
     class AccountsColumns : public Gtk::TreeModel::ColumnRecord {
     public:

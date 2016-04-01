@@ -6,8 +6,9 @@
 
 #include <gtkmm/liststore.h>
 #include <gtkmm/listviewtext.h>
-#include <iostream>
 #include <gtkmm/messagedialog.h>
+#include <iostream>
+
 #include "mpw_password_window.h"
 #include "simple_columns.h"
 #include "password_type.h"
@@ -22,7 +23,7 @@ mpw_password_window *mpw_password_window::create(UserManager *userManager, User 
 }
 
 mpw_password_window::mpw_password_window(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder) :
-        Gtk::Window(cobject) {
+        mpw_window(cobject, builder) {
     Gtk::Button *logoutButton, *copyButton;
 
     // Widgets
@@ -174,8 +175,7 @@ void mpw_password_window::logout() {
     // Add the password window to the gtk application
     get_application()->add_window(*loginWindow);
 
-    // Hide and delete this window
-    hide();
+    // Delete this window
     delete this;
 }
 

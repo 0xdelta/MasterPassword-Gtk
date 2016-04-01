@@ -10,13 +10,15 @@
 #include <gtkmm/spinbutton.h>
 #include <gtkmm/combobox.h>
 #include <gtkmm/checkbutton.h>
+
+#include "mpw_window.h"
 #include "user.h"
 
 /**
  * This is the window, that is shown, after the user entered
  * his credentials in the login window.
  */
-class mpw_password_window : public Gtk::Window {
+class mpw_password_window : public mpw_window {
 public:
     static mpw_password_window *create(UserManager *userManager, User *user);
 

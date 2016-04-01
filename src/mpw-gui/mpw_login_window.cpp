@@ -23,7 +23,7 @@ mpw_login_window *mpw_login_window::create(UserManager *userManager) {
 }
 
 mpw_login_window::mpw_login_window(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder) :
-        Gtk::Window(cobject) {
+        mpw_window(cobject, builder) {
     // User Manager
     userManager = new UserManager;
     userManager->readFromConfig();
@@ -138,8 +138,7 @@ void mpw_login_window::accountLogin() {
     // Add the password window to the gtk application
     get_application()->add_window(*passwordWindow);
 
-    // Hide and delete this window
-    hide();
+    // Delete this window
     delete this;
 }
 
@@ -168,8 +167,7 @@ void mpw_login_window::incognitoLogin() {
     // Add the password window to the gtk application
     get_application()->add_window(*passwordWindow);
 
-    // Hide and delete this window
-    hide();
+    // Delete this window
     delete this;
 }
 

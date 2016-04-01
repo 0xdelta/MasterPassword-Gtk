@@ -11,12 +11,13 @@
 #include <gtkmm/combobox.h>
 #include <gtkmm/builder.h>
 
+#include "mpw_window.h"
 #include "user_manager.h"
 
 /**
  * The login window is the entry point of the application.
  */
-class mpw_login_window : public Gtk::Window {
+class mpw_login_window : public mpw_window {
 public:
     static mpw_login_window *create(UserManager *userManager);
 
