@@ -6,7 +6,7 @@ Parts of the code (more specifically /src/mpw-algorithm/) are taken from the ori
 ## Project State
 Current version: 1.1
 
-Note, that the master branch is now used as a kind of "stable" branch. Development takes place in a separate branch called dev.  
+Note, that the master branch is now used as a kind of "stable" branch. Development takes place in a separate branch called dev.
 
 ## Release Notes
 
@@ -25,3 +25,21 @@ The following libraries are required:
 * libcrypto (https://www.openssl.org/docs/manmaster/crypto/crypto.html)
 * libconfig (http://www.hyperrealm.com/libconfig/)
 * gtkmm (http://www.gtkmm.org/)
+
+To compile the project, download the dependencies and perform the following steps:
+
+Create a build directory, e.g.:
+
+    mkdir build && cd build
+
+Initialize CMake build files:
+
+    cmake /path/to/project/root
+
+Build using CMake:
+
+    cmake --build /path/to/build/directory
+
+The mpw-gui executable is now located in:
+
+    build/src/mpw-gui/
