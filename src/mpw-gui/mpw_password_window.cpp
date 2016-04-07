@@ -14,8 +14,10 @@
 #include "password_type.h"
 #include "algorithm_version.h"
 
+extern std::string getResourceDir();
+
 mpw_password_window *mpw_password_window::create(UserManager *userManager, User *user) {
-    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("ui/password.ui");
+    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file(getResourceDir() + "/ui/password.ui");
     mpw_password_window *window = nullptr;
     builder->get_widget_derived("window", window);
     window->postInit(userManager, user);

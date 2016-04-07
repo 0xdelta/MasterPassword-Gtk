@@ -14,8 +14,10 @@
 #include "simple_columns.h"
 #include "mpw_manage_accounts_window.h"
 
+extern std::string getResourceDir();
+
 mpw_login_window *mpw_login_window::create(UserManager *userManager) {
-    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("ui/login.ui");
+    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file(getResourceDir() + "/ui/login.ui");
     mpw_login_window *window = nullptr;
     builder->get_widget_derived("window", window);
     window->postInit(userManager);

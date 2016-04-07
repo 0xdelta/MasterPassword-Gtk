@@ -40,6 +40,6 @@ Build using CMake:
 
     cmake --build /path/to/build/directory
 
-The mpw-gui executable is now located in:
+The mpw-gtk executable is now located in:
 
     build/src/mpw-gui/

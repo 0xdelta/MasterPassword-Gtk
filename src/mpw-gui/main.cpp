@@ -4,6 +4,10 @@
 #include "mpw_login_window.h"
 #include "mpw_password_window.h"
 
+std::string getResourceDir() {
+    return "/usr/share/mpw-gtk";
+}
+
 int main(int argc, char *argv[]) {
     UserManager userManager;
     if (!userManager.readFromConfig()) {

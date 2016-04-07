@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Master Password (Gtk)
+Comment=A Gtk (more specifically gtkmm) GUI implementation of the MasterPassword algorithm.
+Exec=/usr/bin/mpw-gtk
+Icon=/usr/share/mpw-gtk/icon_256x256.png
+Terminal=false
+Type=Application
+Categories=Utility

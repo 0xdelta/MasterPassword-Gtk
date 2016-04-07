@@ -10,8 +10,10 @@
 #include <gtkmm/messagedialog.h>
 #include <iostream>
 
+extern std::string getResourceDir();
+
 mpw_manage_accounts_window *mpw_manage_accounts_window::create(UserManager *userManager) {
-    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file("ui/manage-accounts.ui");
+    Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file(getResourceDir() + "/ui/manage-accounts.ui");
     mpw_manage_accounts_window *window = nullptr;
     builder->get_widget_derived("window", window);
     window->postInit(userManager);
