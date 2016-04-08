@@ -22,6 +22,10 @@ add_custom_target(copy-ui-files ALL
 # Package
 set(CMAKE_INSTALL_PREFIX /usr)
 
+set(CPACK_PACKAGE_VERSION_MAJOR 0)
+set(CPACK_PACKAGE_VERSION_MINOR 1)
+set(CPACK_PACKAGE_VERSION_PATCH 2)
+
 install(DIRECTORY ui/ DESTINATION share/mpw-gtk/ui)
 install(FILES resources/icon_256x256.png DESTINATION share/mpw-gtk/)
 install(FILES resources/mpw-gtk.desktop DESTINATION share/applications/)
