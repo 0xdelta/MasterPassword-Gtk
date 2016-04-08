@@ -4,7 +4,7 @@ A Gtk (more specifically gtkmm) GUI implementation of the MasterPassword algorit
 Parts of the code (more specifically /src/mpw-algorithm/) are taken from the original MasterPassword Github repository (https://github.com/Lyndir/MasterPassword). Some minor changes were made to provide compatibility to the rest of the code.
 
 ## Project State
-Current version: 1.1
+Current version: 1.2
 
 Note, that the master branch is now used as a kind of "stable" branch. Development takes place in a separate branch called dev.
 
