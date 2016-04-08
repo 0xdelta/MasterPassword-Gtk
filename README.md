@@ -14,8 +14,12 @@ Note, that the master branch is now used as a kind of "stable" branch. Developme
 First version. Basic functionality.
 
 ### v1.1
-* Improved error handling
-* Manage Accounts window
+* Improve error handling
+* Add Manage Accounts window
+
+### v1.2
+* Improve memory management
+* Provide package support for Debian (.deb) installer
 
 ## Build
 CMake is required to build this project.
