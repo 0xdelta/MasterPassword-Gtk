@@ -14,14 +14,14 @@ Current version: 1.2
 
 Note, that the master branch is now used as a kind of "stable" branch. Development takes place in a separate branch called dev.
 
-### v1.0
+#### v1.0
 First version. Basic functionality.
 
-### v1.1
+#### v1.1
 * Improve error handling
 * Add Manage Accounts window
 
-### v1.2
+#### v1.2
 * Improve memory management
 * Provide package support for Debian (.deb) installer
 
