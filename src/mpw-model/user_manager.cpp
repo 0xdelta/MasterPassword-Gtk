@@ -130,7 +130,7 @@ AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
 
     if (!configFile) {
         std::cerr << "User config file does not exist: " << fileName << std::endl;
-        return NULL;
+        return nullptr;
     }
 
     Config config;
@@ -141,7 +141,7 @@ AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
     } catch (ParseException &e) {
         std::cerr << "Could not read user config: " << e.what() << "(" << e.getError() << ")" << std::endl;
         fclose(configFile);
-        return NULL;
+        return nullptr;
     }
 
     int configVersion;
@@ -149,7 +149,7 @@ AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
         configVersion = config.lookup("configVersion");
     } catch (SettingNotFoundException &e) {
         std::cerr << "Could not read user config version: " << e.what() << std::endl;
-        return NULL;
+        return nullptr;
     }
 
     try {
@@ -188,13 +188,13 @@ AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
         std::cerr << "Could not read user config: " << e.what() << " (" << e.getPath() << ")" << std::endl;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 AccountUser *UserManager::readUserFromConfig(std::string &userName) {
     if (!existsUser(userName)) {
         std::cerr << "User " + userName + " not registered" << std::endl;
-        return NULL;
+        return nullptr;
     }
 
     std::string fileName = getUserConfigFileName(userName);

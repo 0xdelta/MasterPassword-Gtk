@@ -25,9 +25,9 @@ User::~User() {
 }
 
 std::string User::passwordForService(std::string &siteName, MPSiteType siteType, MPAlgorithmVersion version, uint32_t counter) {
-    const char *res = mpw_passwordForSite(masterKey, siteName.c_str(), siteType, counter, MPSiteVariantPassword, NULL, version);
-    if (res == NULL) {
-        std::cerr << "mpw_passwordForSite returned NULL" << std::endl;
+    const char *res = mpw_passwordForSite(masterKey, siteName.c_str(), siteType, counter, MPSiteVariantPassword, nullptr, version);
+    if (res == nullptr) {
+        std::cerr << "mpw_passwordForSite returned null" << std::endl;
         //throw password_generate_exception{};
     }
     return std::string{res};
