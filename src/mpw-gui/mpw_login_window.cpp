@@ -132,7 +132,11 @@ void mpw_login_window::accountLogin() {
     }
 
     userManager->setLastUser(userName);
-    userManager->writeToConfig();
+    if (!userManager->writeToConfig()) {
+        Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
+        dialog.set_secondary_text("Could not write the main config (the application will start anyway). \"" + userName + "\".\n\nSee log for details");
+        dialog.run();
+    }
 
     // Create the window
     mpw_password_window *passwordWindow = mpw_password_window::create(userManager, user);

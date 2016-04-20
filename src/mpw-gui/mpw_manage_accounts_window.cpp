@@ -120,7 +120,11 @@ void mpw_manage_accounts_window::deleteUser() {
 }
 
 void mpw_manage_accounts_window::finish() {
-    userManager->writeToConfig();
+    if (!userManager->writeToConfig()) {
+        Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
+        dialog.set_secondary_text("Could not write to main config (the window will close anyway).\n\nSee log for details");
+        dialog.run();
+    }
 
     delete this;
 }

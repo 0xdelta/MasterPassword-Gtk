@@ -50,7 +50,7 @@ public:
     /**
      * Writes the current state to the config.
      */
-    void writeToConfig();
+    bool writeToConfig();
 
     /**
      * Checks if a given user name is registered by this manager.
@@ -69,7 +69,7 @@ public:
      * Writes the given user to the file, that is returned from
      * getUserConfigFileName(string)
      */
-    void writeUserToConfig(User &user);
+    bool writeUserToConfig(User &user);
     /**
      * Creates a new user with the given user name and master password.
      * @retval true if succeed.

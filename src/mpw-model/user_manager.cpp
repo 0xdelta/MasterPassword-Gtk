@@ -91,7 +91,7 @@ bool UserManager::readFromConfig() {
     return false;
 }
 
-void UserManager::writeToConfig() {
+bool UserManager::writeToConfig() {
     using namespace libconfig;
 
     // Create a config object and insert the values
@@ -109,8 +109,8 @@ void UserManager::writeToConfig() {
     // Create a stream to write the config
     FILE *configFile = fopen(getConfigFileName().c_str(), "w");
     if (!configFile) {
-        std::cerr << "Could not create main config file" << std::endl;
-        return;
+        std::cerr << "Could not create main config file stream: " << getConfigFileName() << std::endl;
+        return false;
     }
 
     // Write the config
@@ -118,6 +118,7 @@ void UserManager::writeToConfig() {
     fclose(configFile);
 
     std::cout << "Success writing main config." << std::endl;
+    return true;
 }
 
 bool UserManager::existsUser(std::string &userName) {
@@ -201,7 +202,7 @@ AccountUser *UserManager::readUserFromConfig(std::string &userName) {
     return readUserFromConfigDirect(fileName);
 }
 
-void UserManager::writeUserToConfig(User &user) {
+bool UserManager::writeUserToConfig(User &user) {
     using namespace libconfig;
 
     // Create a config object and insert the values
@@ -228,8 +229,8 @@ void UserManager::writeUserToConfig(User &user) {
     std::string configFileName = getUserConfigFileName((std::string &) user.getUserName());
     FILE *configFile = fopen(configFileName.c_str(), "w");
     if (!configFile) {
-        std::cerr << "Could not create user config file" << std::endl;
-        return;
+        std::cerr << "Could not create user config file stream: " << configFileName << std::endl;
+        return false;
     }
 
     // Write the config
@@ -238,6 +239,7 @@ void UserManager::writeUserToConfig(User &user) {
 
     availableUsers.emplace(user.getUserName(), configFileName);
     std::cout << "Success writing user config." << std::endl;
+    return true;
 }
 
 bool UserManager::createUser(std::string &userName, std::string &masterPassword) {

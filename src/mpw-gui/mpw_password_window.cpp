@@ -215,7 +215,12 @@ void mpw_password_window::serviceSettingsChanged() {
         storedService.setAlgorithmVersion(selectedService.getAlgorithmVersion());
         storedService.setCounter(selectedService.getCounter());
 
-        userManager->writeUserToConfig(*user);
+        if (!userManager->writeUserToConfig(*user)) {
+            Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
+            dialog.set_secondary_text("Could not write user config.\n\nSee log for details");
+            dialog.run();
+            return;
+        }
     }
 
     computeAndShowPassword();
@@ -279,7 +284,12 @@ void mpw_password_window::modifySiteButtonClicked() {
             Service service = getSelectedService();
             user->addService(service);
         }
-        userManager->writeUserToConfig(*user);
+
+        if (!userManager->writeUserToConfig(*user)) {
+            Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
+            dialog.set_secondary_text("Could not write user config.\n\nSee log for details");
+            dialog.run();
+        }
 
         updateModifySiteButton();
         updateAutoCompletion();

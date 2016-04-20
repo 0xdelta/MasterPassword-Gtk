@@ -85,7 +85,12 @@ void mpw_create_account_window::createButtonClicked() {
         return;
     }
 
-    userManager->writeToConfig();
+    if (!userManager->writeToConfig()) {
+        Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
+        dialog.set_secondary_text("Could not write the main config. \"" + userName + "\".\n\nSee log for details");
+        dialog.run();
+        return;
+    }
 
     Gtk::MessageDialog dialog(*this, "Success", false, Gtk::MESSAGE_INFO);
     dialog.set_secondary_text("Account created! You can now login using your username and password.");
