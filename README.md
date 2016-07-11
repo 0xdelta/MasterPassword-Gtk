@@ -34,20 +34,17 @@ The following libraries are required:
 * libconfig (http://www.hyperrealm.com/libconfig/)
 * gtkmm (http://www.gtkmm.org/)
 
-To compile the project, download the dependencies and perform the following steps:
+To compile the project, download the project + dependencies and perform the following steps:
 
-Create a build directory, e.g.:
+OPTIONAL: Create a build directory, e.g.:
 
     mkdir build && cd build
 
 Initialize CMake build files:
 
-    cmake /path/to/project/root
+    cmake /path/to/CMakeLists.txt
 
-Build using CMake:
+Build & install using make:
 
-    cmake --build /path/to/build/directory
-
-The mpw-gtk executable is now located in:
-
-    build/src/mpw-gui/
+    make
+    make install
