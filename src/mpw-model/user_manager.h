@@ -7,6 +7,8 @@
 
 #include <unordered_map>
 #include <string>
+#include <memory>
+
 #include "account_user.h"
 
 /**
@@ -59,12 +61,12 @@ public:
     /**
      * Reads an account user from its config file.
      */
-    AccountUser *readUserFromConfigDirect(std::string &fileName);
+    std::unique_ptr<AccountUser> readUserFromConfigDirect(std::string &fileName);
     /**
      * Reads an account user from its config file. This calls
      * the previous function with the return value of getUserConfigFileName(string)
      */
-    AccountUser *readUserFromConfig(std::string &userName);
+    std::unique_ptr<AccountUser> readUserFromConfig(std::string &userName);
     /**
      * Writes the given user to the file, that is returned from
      * getUserConfigFileName(string)

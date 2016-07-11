@@ -20,11 +20,11 @@
  */
 class mpw_password_window : public mpw_window {
 public:
-    static mpw_password_window *create(UserManager *userManager, User *user);
+    static mpw_password_window *create(UserManager *userManager, std::unique_ptr<User> user);
 
 private:
     UserManager *userManager;
-    User *user;
+    std::unique_ptr<User> user;
 
     Gtk::Entry *serviceEntry, *passwordOutput;
     Gtk::CheckButton *passwordVisibility;
@@ -42,7 +42,7 @@ private:
      * is used to pass the user manager and the user object to
      * this object.
      */
-    void postInit(UserManager *userManager, User *user);
+    void postInit(UserManager *userManager, std::unique_ptr<User> user);
 
     /**
      * Create an new Service instance that represents

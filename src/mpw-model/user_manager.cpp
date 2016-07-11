@@ -9,6 +9,7 @@
 #include <libconfig.h++>
 #include <iostream>
 #include <mpw-util.h>
+#include <bits/unique_ptr.h>
 
 UserManager::UserManager() {
     // Ensure the config directory exists
@@ -125,7 +126,7 @@ bool UserManager::existsUser(std::string &userName) {
     return availableUsers.find(userName) != availableUsers.end();
 }
 
-AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
+std::unique_ptr<AccountUser> UserManager::readUserFromConfigDirect(std::string &fileName) {
     using namespace libconfig;
     FILE *configFile = fopen(fileName.c_str(), "r");
 
@@ -160,7 +161,7 @@ AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
             const uint8_t *masterKeyId = mpw_hex_reverse(keyIdString.c_str(), keyIdString.size());
             MPAlgorithmVersion masterKeyAlgorithmVersion = (MPAlgorithmVersion) ((int) config.lookup("algorithmVersion"));
 
-            AccountUser *user = new AccountUser{userName, masterKeyId, masterKeyAlgorithmVersion};
+            auto user = std::unique_ptr<AccountUser>{new AccountUser{userName, masterKeyId, masterKeyAlgorithmVersion}};
 
             Setting &servicesSetting = config.lookup("services");
             for (int i = 0; i < servicesSetting.getLength(); ++i) {
@@ -192,7 +193,7 @@ AccountUser *UserManager::readUserFromConfigDirect(std::string &fileName) {
     return nullptr;
 }
 
-AccountUser *UserManager::readUserFromConfig(std::string &userName) {
+std::unique_ptr<AccountUser> UserManager::readUserFromConfig(std::string &userName) {
     if (!existsUser(userName)) {
         std::cerr << "User " + userName + " not registered" << std::endl;
         return nullptr;
@@ -280,13 +281,11 @@ bool UserManager::setUserFile(std::string &userName, std::string &file) {
 }
 
 bool UserManager::importUser(std::string &fileName) {
-    AccountUser *user = readUserFromConfigDirect(fileName);
+    std::unique_ptr<AccountUser> user = readUserFromConfigDirect(fileName);
 
     if(user) {
         availableUsers.emplace(user->getUserName(), fileName);
         setLastUser(user->getUserName());
-
-        delete user;
         return true;
     }
 

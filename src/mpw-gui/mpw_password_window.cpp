@@ -16,11 +16,11 @@
 
 extern std::string getResourceDir();
 
-mpw_password_window *mpw_password_window::create(UserManager *userManager, User *user) {
+mpw_password_window *mpw_password_window::create(UserManager *userManager, std::unique_ptr<User> user) {
     Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_file(getResourceDir() + "/ui/password.ui");
     mpw_password_window *window = nullptr;
     builder->get_widget_derived("window", window);
-    window->postInit(userManager, user);
+    window->postInit(userManager, std::move(user));
     return window;
 }
 
@@ -52,12 +52,11 @@ mpw_password_window::mpw_password_window(BaseObjectType *cobject, const Glib::Re
 }
 
 mpw_password_window::~mpw_password_window() {
-    delete user;
 }
 
-void mpw_password_window::postInit(UserManager *_userManager, User *_user) {
+void mpw_password_window::postInit(UserManager *_userManager, std::unique_ptr<User> _user) {
     userManager = _userManager;
-    user = _user;
+    user = std::move(_user);
 
     // Create the models for ComboBoxes
     Glib::RefPtr<Gtk::ListStore> passwordTypesModel = Gtk::ListStore::create(simpleColumnsInstance);
