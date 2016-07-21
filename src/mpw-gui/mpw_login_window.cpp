@@ -26,10 +26,6 @@ mpw_login_window *mpw_login_window::create(UserManager *userManager) {
 
 mpw_login_window::mpw_login_window(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder) :
         mpw_window(cobject, builder) {
-    // User Manager
-    userManager = new UserManager;
-    userManager->readFromConfig();
-
     // Global widgets
     builder->get_widget("create-account", createAccountButton);
     builder->get_widget("manage-accounts", manageAccountsButton);
@@ -111,7 +107,7 @@ void mpw_login_window::accountLogin() {
         return;
     }
 
-    AccountUser *user = userManager->readUserFromConfig(userName);
+    auto user = userManager->readUserFromConfig(userName);
 
     if (!user) {
         Gtk::MessageDialog dialog(*this, "Error", false, Gtk::MESSAGE_ERROR);
@@ -126,8 +122,6 @@ void mpw_login_window::accountLogin() {
         Gtk::MessageDialog dialog(*this, "Authentication failure", false, Gtk::MESSAGE_ERROR);
         dialog.set_secondary_text("Incorrect master password for \"" + userName + "\"");
         dialog.run();
-
-        delete user;
         return;
     }
 
@@ -139,7 +133,7 @@ void mpw_login_window::accountLogin() {
     }
 
     // Create the window
-    mpw_password_window *passwordWindow = mpw_password_window::create(userManager, user);
+    mpw_password_window *passwordWindow = mpw_password_window::create(userManager, std::move(user));
 
     // Add the password window to the gtk application
     get_application()->add_window(*passwordWindow);
@@ -164,11 +158,11 @@ void mpw_login_window::incognitoLogin() {
     }
 
     // Create the user
-    IncognitoUser *user = new IncognitoUser{userName};
+    auto user = std::unique_ptr<IncognitoUser>{new IncognitoUser{userName}};
     user->unlockMasterKey(masterPassword);
 
     // Create the window
-    mpw_password_window *passwordWindow = mpw_password_window::create(userManager, user);
+    mpw_password_window *passwordWindow = mpw_password_window::create(userManager, std::move(user));
 
     // Add the password window to the gtk application
     get_application()->add_window(*passwordWindow);
