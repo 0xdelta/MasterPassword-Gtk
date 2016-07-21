@@ -41,6 +41,6 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 ## Deb specific
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Lukas (0xdelta)") #required
 set(CPACK_DEBIAN_PACKAGE_SECTION "utility")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtk-3-0 (>= 3.10), openssl (>= 1.0.1), libconfig++9, libscrypt-dev")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtk-3-0 (>= 3.10), openssl (>= 1.0.1), libconfig++9, libscrypt0")
 
 include(CPack)
