@@ -34,7 +34,25 @@ The following libraries are required:
 * libconfig (http://www.hyperrealm.com/libconfig/)
 * gtkmm (http://www.gtkmm.org/)
 
-To compile the project, download the project + dependencies and perform the following steps:
+### Dependencies
+
+Most of the dependencies listed above are available under common GNU/Linux distributions.
+
+#### Debian/Ubuntu
+
+    apt-get update
+    apt-get install build-essential cmake libscrypt-dev libssl-dev libconfig++-dev libgtkmm-3.0-dev
+
+#### Arch Linux
+
+    pacman -Syu
+    pacman -S base-devel cmake openssl libconfig gtkmm3
+
+libscrypt is not available in the main package repositories of Arch, so you may need to compile it yourself.
+
+### Build Masterpassword Gtk
+
+Download the sources (download the tarball or use git clone).
 
 OPTIONAL: Create a build directory, e.g.:
 
